@@ -126,3 +126,9 @@ Open the app in your browser:
 ```text
 http://127.0.0.1:8000/
 ```
+
+## Front end team
+
+I have made a folder called mockups. This will be seperate to the backend, so you can do front end work as you please here:
+http://localhost:8000/mockups/
+
