@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "apps.pages",
     "apps.mockups",
     "apps.users",
+    "apps.teams",
 ]
 
 MIDDLEWARE = [
