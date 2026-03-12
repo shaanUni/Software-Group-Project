@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sky Teams{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .nav {
+            margin-bottom: 24px;
+        }
+        .nav a {
+            margin-right: 12px;
+        }
+        .box {
+            max-width: 700px;
+            padding: 24px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        input {
+            display: block;
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+        button {
+            padding: 10px 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        {% if user.is_authenticated %}
+            <strong>Logged in as:</strong> {{ user.username }}
+            |
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            {% if user.is_staff %}
+                <a href="{% url 'admin-dashboard' %}">Admin Dashboard</a>
+                <a href="/admin/">Django Admin</a>
+            {% endif %}
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+    </div>
+
+    <div class="box">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

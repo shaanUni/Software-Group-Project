@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("apps.pages.urls")),
     path("mockups/", include("apps.mockups.urls")),
+    path("", include("apps.users.urls")),
 ]
