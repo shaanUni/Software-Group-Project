@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     "apps.pages",
     "apps.mockups",
     "apps.users",
-    "apps.teams",
+    #"apps.teams",
+    "apps.teams.apps.TeamsConfig",
 ]
 
 MIDDLEWARE = [
