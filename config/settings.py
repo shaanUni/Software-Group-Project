@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "apps.users",
     #"apps.teams",
     "apps.teams.apps.TeamsConfig",
-]
+    "bootstrap5",]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
