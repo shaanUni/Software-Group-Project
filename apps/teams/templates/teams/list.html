@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Teams{% endblock %}
+
+{% block content %}
+<h1>Teams</h1>
+
+{% if teams %}
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Team</th>
+                <th>Department</th>
+                <th>Active</th>
+                <th>Slack</th>
+                <th>Wiki</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in teams %}
+                <tr>
+                    <td>{{ team.team_id }}</td>
+                    <td>{{ team.team_name }}</td>
+                    <td>{{ team.department.department_name }}</td>
+                    <td>{{ team.is_active }}</td>
+                    <td>{{ team.slack_channels }}</td>
+                    <td>{{ team.team_wiki }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No teams found.</p>
+{% endif %}
+{% endblock %}
