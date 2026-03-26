@@ -7,7 +7,7 @@
     <div class="teams-header">
         <div>
             <h1 class="teams-title">Teams</h1>
-            <p class="teams-subtitle">View and manage team information.</p>
+            <p class="teams-subtitle">View teams, employee counts, and quick actions.</p>
         </div>
 
         {% if user.is_superuser %}
@@ -19,42 +19,51 @@
     </div>
 
     {% if teams %}
-    <div class="teams-table-card">
-        <div class="table-responsive">
-            <table class="teams-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Team</th>
-                        <th>Department</th>
-                        <th>Team Lead</th>
-                        <th>Employees</th>
-                        <th>Projects</th>
-                        {% if user.is_superuser %}
-                        <th>Actions</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for team in teams %}
-                    <tr>
-                        <td>{{ team.team_id }}</td>
-                        <td class="fw-semibold">{{ team.team_name }}</td>
-                        <td>{{ team.department.department_name }}</td>
-                        <td>{{ team.team_leader }}</td>
-                        <td>{{ team.employee_count }}</td>
-                        <td>{{ team.project_count }}</td>
-                        {% if user.is_superuser %}
-                        <td>
-                            <a href="{% url 'team-edit' team.team_id %}" class="btn btn-sm btn-outline-secondary">
-                                Edit
-                            </a>
-                        </td>
-                        {% endif %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="teams-layout">
+        <div class="teams-table-card">
+            <div class="card-header-row">
+                <h2 class="section-title">All Teams</h2>
+            </div>
+
+            <div class="table-responsive">
+                <table class="teams-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Team</th>
+                            <th>Department</th>
+                            <th>Team Lead</th>
+                            <th>Employees</th>
+                            <th>Projects</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in teams %}
+                        <tr>
+                            <td>{{ team.team_id }}</td>
+                            <td class="fw-semibold">{{ team.team_name }}</td>
+                            <td>{{ team.department.department_name }}</td>
+                            <td>{{ team.team_leader }}</td>
+                            <td>{{ team.employee_count }}</td>
+                            <td>{{ team.project_count }}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="{% url 'team-detail' team.team_id %}" class="btn btn-sm btn-primary">
+                                        View Team
+                                    </a>
+                                    {% if user.is_superuser %}
+                                    <a href="{% url 'team-edit' team.team_id %}" class="btn btn-sm btn-outline-secondary">
+                                        Edit
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     {% else %}

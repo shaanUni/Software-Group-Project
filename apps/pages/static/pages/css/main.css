@@ -137,7 +137,7 @@ body.site-body {
 
 .content-container {
     width: 100%;
-    max-width: 1280px;
+    max-width: 1880px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -458,4 +458,241 @@ footer.site-footer {
 
 .auth-footer a:hover {
     text-decoration: underline;
+}
+
+
+/*teams css*/
+.teams-page {
+    width: 100%;
+}
+
+.teams-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.teams-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.teams-subtitle {
+    margin: 0.4rem 0 0;
+    color: #6b7280;
+    font-size: 0.98rem;
+}
+
+.teams-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.teams-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.teams-table-card,
+.employees-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.card-header-row {
+    padding: 1.25rem 1.25rem 0.75rem;
+    border-bottom: 1px solid #eef2f7;
+    background: #f8fafc;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.teams-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1050px;
+}
+
+.teams-table thead {
+    background: #f8fafc;
+}
+
+.teams-table th {
+    text-align: left;
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.teams-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eef2f7;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+.teams-table tbody tr:hover {
+    background: #f9fbff;
+}
+
+.teams-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.employee-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.employee-item:last-child {
+    border-bottom: none;
+}
+
+.employee-name {
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.2rem;
+}
+
+.employee-meta {
+    font-size: 0.92rem;
+    color: #6b7280;
+}
+
+.empty-state,
+.empty-side-state {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+.empty-state {
+    background: #fff;
+    border: 1px dashed #d1d5db;
+    border-radius: 16px;
+}
+
+@media (max-width: 1100px) {
+    .teams-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/*team details page*/
+.team-detail-page {
+    width: 100%;
+}
+
+.team-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.team-detail-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.team-detail-subtitle {
+    margin: 0.35rem 0 0;
+    color: #6b7280;
+}
+
+.team-detail-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.team-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.detail-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.section-title {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: #374151;
+}
+
+.employee-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.employee-item {
+    padding: 0.9rem 1rem;
+    border: 1px solid #eef2f7;
+    border-radius: 12px;
+    background: #f9fafb;
+}
+
+.employee-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.empty-text {
+    color: #6b7280;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .team-detail-grid {
+        grid-template-columns: 1fr;
+    }
 }

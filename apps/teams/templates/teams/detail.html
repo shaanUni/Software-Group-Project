@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}{{ team.team_name }}{% endblock %}
+
+{% block content %}
+<div class="team-detail-page">
+    <div class="team-detail-header">
+        <div>
+            <h1 class="team-detail-title">{{ team.team_name }}</h1>
+            <p class="team-detail-subtitle">
+                Department: {{ team.department.department_name }}
+            </p>
+        </div>
+
+        <div class="team-detail-actions">
+            <a href="{% url 'team-list' %}" class="btn btn-outline-secondary">Back to Teams</a>
+            {% if user.is_superuser %}
+            <a href="{% url 'team-edit' team.team_id %}" class="btn btn-primary">Edit Team</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="team-detail-grid">
+        <div class="detail-card">
+            <h2 class="section-title">Team Information</h2>
+            <div class="detail-list">
+                <div><strong>ID:</strong> {{ team.team_id }}</div>
+                <div><strong>Team Lead:</strong> {{ team.team_leader }}</div>
+                <div><strong>Employees:</strong> {{ team.employee_count }}</div>
+                <div><strong>Projects:</strong> {{ team.project_count }}</div>
+                <div><strong>Slack Channels:</strong> {{ team.slack_channels|default:"—" }}</div>
+                <div><strong>Daily Standup:</strong> {{ team.daily_standup_time|default:"—" }}</div>
+                <div><strong>Wiki:</strong> {{ team.team_wiki|default:"—" }}</div>
+                <div><strong>Development Focus:</strong> {{ team.development_focus_areas|default:"—" }}</div>
+                <div><strong>Key Skills & Technologies:</strong> {{ team.key_skills_technologies|default:"—" }}</div>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h2 class="section-title">Employees in This Team</h2>
+
+            {% if employees %}
+            <div class="employee-list">
+                {% for employee in employees %}
+                <div class="employee-item">
+                    <div class="employee-name">{{ employee }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-text">No employees assigned to this team yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

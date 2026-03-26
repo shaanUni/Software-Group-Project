@@ -31,6 +31,17 @@ def superadmin_team_create(request):
     return render(request, "teams/team_form.html", {"form": form})
 
 @login_required
+def team_detail(request, team_id):
+    team = get_object_or_404(
+        Team.objects.select_related("team_leader", "department").prefetch_related("employees"),
+        pk=team_id,
+    )
+    
+    employees = team.employees.all()
+
+    return render(request, "teams/detail.html", {"team": team, "employees": employees,})
+
+@login_required
 @user_passes_test(is_superadmin)
 def team_edit_view(request, pk):
     team = get_object_or_404(Team, pk=pk)
