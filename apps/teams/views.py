@@ -6,5 +6,5 @@ from .models import Team
 
 @login_required
 def team_list(request):
-    teams = Team.objects.select_related("department", "meeting", "channel").all()
+    teams = Team.objects.select_related("team_leader", "department")
     return render(request, "teams/list.html", {"teams": teams})

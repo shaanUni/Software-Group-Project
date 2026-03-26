@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import Department, ContactChannel, MeetingSchedule, Team, CodeRepository
+from .models import Department, Team, Employee, Project
 
 admin.site.register(Department)
-admin.site.register(ContactChannel)
-admin.site.register(MeetingSchedule)
 admin.site.register(Team)
-admin.site.register(CodeRepository)
+admin.site.register(Employee)
+admin.site.register(Project)

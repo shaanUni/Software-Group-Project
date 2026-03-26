@@ -12,9 +12,10 @@
                 <th>ID</th>
                 <th>Team</th>
                 <th>Department</th>
-                <th>Active</th>
-                <th>Slack</th>
-                <th>Wiki</th>
+                <th>Team lead</th>
+                <th>Number of employees</th>
+
+                <th>Projects</th>
             </tr>
         </thead>
         <tbody>
@@ -23,9 +24,11 @@
                     <td>{{ team.team_id }}</td>
                     <td>{{ team.team_name }}</td>
                     <td>{{ team.department.department_name }}</td>
-                    <td>{{ team.is_active }}</td>
-                    <td>{{ team.slack_channels }}</td>
-                    <td>{{ team.team_wiki }}</td>
+                    <td>{{ team.team_leader }}</td>
+                    <td>{{ team.employee_count }}</td>
+
+
+                    <td>{{ team.project_count }}</td>
                 </tr>
             {% endfor %}
         </tbody>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Profile</title>
+</head>
+<body>
+    <h1>My Profile</h1>
+
+    <p><strong>Name:</strong> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+    <p><strong>Username:</strong> {{ request.user.username }}</p>
+    <p><strong>Email:</strong> {{ request.user.email }}</p>
+
+    <p><a href="{% url 'edit_profile' %}">Edit profile</a></p>
+    <p><a href="{% url 'password_change' %}">Change password</a></p>
+    <p>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </p>
+</body>
+</html>
