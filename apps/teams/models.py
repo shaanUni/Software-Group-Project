@@ -48,13 +48,19 @@ class Team(models.Model):
 
     class Meta:
         db_table = "team"
-    
+
     def employee_count(self):
         return self.employees.count()
-    
+
     def project_count(self):
         return self.projects.count()
+
+    def codebase_links(self):
+        return self.projects.exclude(codebase__isnull=True).exclude(codebase__exact="")
     
+    def codebase_projects(self):
+        return self.projects.exclude(codebase__isnull=True).exclude(codebase__exact="")
+
     def __str__(self):
         return self.team_name or f"Team {self.team_id}"
 

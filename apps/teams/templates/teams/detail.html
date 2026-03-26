@@ -51,6 +51,22 @@
             <p class="empty-text">No employees assigned to this team yet.</p>
             {% endif %}
         </div>
+        <div class="detail-card">
+
+        <h2>Code Repositories</h2>
+            {% if team.codebase_projects %}
+            <ul>
+                {% for project in team.codebase_projects %}
+                    <li>
+                        <strong>{{ project.project_name }}</strong> —
+                        <a href="{{ project.codebase }}" target="_blank">{{ project.codebase }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+                {% else %}
+                    <p>No code repositories listed for this team.</p>
+                {% endif %}
+            </div>
     </div>
 </div>
 {% endblock %}
