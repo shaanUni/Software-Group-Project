@@ -1,10 +1,9 @@
-{# header section #}
-<header>
-    <div class="main-header-container d-flex w-100 align-items-start ">
-        <section class="col logo">
-            <!-- Logo section  -->
-            <div class="main-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88"
+<header class="site-header">
+    <div class="top-bar">
+        <div class="header-inner">
+            <div class="header-row">
+                <div class="logo-section">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88"
                     height="54" fill="none">
                     <path fill="url(#a)" d="M0 0h87.235v53.431H0z" />
                     <defs>
@@ -16,29 +15,62 @@
                             id="b" width="1280" height="784" preserveAspectRatio="none" />
                     </defs>
                 </svg>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <div class="header-tools">
+                        <div class="search-bar">
+                        </div>
+
+                        <div class="profile-section">
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="helpful-links">
+                        <ul class="utility-links">
+                            <li><a href="/help">Help</a></li>
+                            <li><a href="/contact-support">Contact Support</a></li>
+                        </ul>
+                    </div>
+                {% endif %}
             </div>
-
-        </section>
-        {% if user.is_authenticated %}
-        <section class="col search-bar">
-            <!-- Search section -->
-        </section>
-
-
-        <section class="col profile-section">
-            <!-- User profile section -->
-        </section>
-        {% else %}
-        <section class="col helpful-links">
-            <!-- Helpful links -->
-            <ul class="p-0 m-0 d-flex w-100 text-end justify-content-end">
-                <li><a href="/help">Help</a></li>
-                <li><a href="/contact-support">Contact Support</a></li>
-            </ul>
-
-        </section>
-        {% endif %}
-
+        </div>
     </div>
 
+    <div class="nav-bar">
+        <div class="header-inner">
+            <nav class="main-nav">
+                {% if user.is_authenticated %}
+                    <div class="nav-left">
+                        <span class="user-label">Logged in as: {{ user.username }}</span>
+                    </div>
+
+                    <div class="nav-links">
+                        <a href="{% url 'dashboard-router' %}">Dashboard</a>
+                        <a href="{% url 'team-list' %}">Teams</a>
+
+                        {% if user.is_superuser %}
+                            <a href="{% url 'superadmin-team-create' %}">Add Team</a>
+                        {% endif %}
+
+                        {% if user.is_staff %}
+                            <a href="{% url 'admin-dashboard' %}">Admin Dashboard</a>
+                            <a href="/admin/">Django Admin</a>
+                        {% endif %}
+                    </div>
+
+                    <div class="nav-right">
+                        <form action="{% url 'logout' %}" method="post" class="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-dark">Logout</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="nav-links">
+                        <a href="{% url 'login' %}">Login</a>
+                    </div>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
 </header>

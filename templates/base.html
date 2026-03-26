@@ -1,84 +1,39 @@
 {% load static %}
+{% load bootstrap5 %}
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sky Teams{% endblock %}</title>
-    <link rel="stylesheet" href="../static/assets/css/main.css">
+
+    {% bootstrap_css %}
+
+    <link rel="stylesheet" href="{% static 'pages/css/main.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-
-        .nav {
-            margin-bottom: 24px;
-        }
-
-        .nav a {
-            margin-right: 12px;
-        }
-
-        .box {
-            max-width: 700px;
-            padding: 24px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-        input {
-            display: block;
-            width: 100%;
-            max-width: 320px;
-            padding: 10px;
-            margin-bottom: 12px;
-        }
-
-        button {
-            padding: 10px 16px;
-            cursor: pointer;
-        }
-    </style>
-    {% load bootstrap5 %}
-    {% bootstrap_css %}
+          rel="stylesheet">
 </head>
 
-<body>
-    {% block header %}
-    {% include "header.html" %}
-    {% endblock %}
-    <div class="nav">
-        {% if user.is_authenticated %}
-            <strong>Logged in as:</strong> {{ user.username }}
-            |
-            <a href="{% url 'dashboard-router' %}">Dashboard</a>
-            <a href="{% url 'team-list' %}">Teams</a>
-            {% if user.is_staff %}
-                <a href="{% url 'admin-dashboard' %}">Admin Dashboard</a>
-                <a href="/admin/">Django Admin</a>
-            {% endif %}
-            <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>
-        {% else %}
-        <a href="{% url 'login' %}">Login</a>
-        {% endif %}
-    </div>
+<body class="site-body">
+    <div class="site-wrapper">
+        {% block header %}
+            {% include "header.html" %}
+        {% endblock %}
 
-    <div class="box">
-        {% block content %}{% endblock %}
+        <main class="site-main">
+            <div class="content-container">
+                <div class="content-card">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+
+        {% block footer %}
+            {% include "footer.html" %}
+        {% endblock %}
     </div>
-    {% block footer %}
-    {% include "footer.html" %}
-    {% endblock %}
 </body>
-
 </html>

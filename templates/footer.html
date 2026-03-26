@@ -1,21 +1,21 @@
-{# footer section #}
-<footer class="container-full text-center">
-    <div class="footer-main">
-        <div class="d-flex w-100 align-items-start ">
-            <section class="copyright col text-start">
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-row">
+            <div class="copyright">
                 <p class="m-0">© 2026 Sky. All rights reserved</p>
-            </section>
-            <section class="footer-links col">
-                <ul class="p-0 m-0 d-flex w-100 text-end justify-content-end">
+            </div>
+
+            <div class="footer-links">
+                <ul class="footer-links-list">
                     <li><a href="/policy">Privacy Policy</a></li>
                     <li><a href="/terms-service">Terms of Service</a></li>
                     {% if user.is_authenticated %}
-                    <li><a href="/help-center">Help Center</a></li>
+                        <li><a href="/help-center">Help Center</a></li>
                     {% else %}
-                    <li><a href="/security">Security</a></li>
+                        <li><a href="/security">Security</a></li>
                     {% endif %}
                 </ul>
-            </section>
+            </div>
         </div>
     </div>
 </footer>
