@@ -1,9 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 
-from .forms import TeamCreateForm
-from .models import Team
+from .forms import TeamCreateForm, EmployeeCreateForm
+from .models import Team, Employee
 
 
 def is_superadmin(user):
@@ -28,4 +28,46 @@ def superadmin_team_create(request):
     else:
         form = TeamCreateForm()
 
-    return render(request, "teams/superadmin_team_create.html", {"form": form})
+    return render(request, "teams/team_form.html", {"form": form})
+
+@login_required
+@user_passes_test(is_superadmin)
+def team_edit_view(request, pk):
+    team = get_object_or_404(Team, pk=pk)
+
+    if request.method == "POST":
+        form = TeamCreateForm(request.POST, instance=team)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Team updated successfully.")
+            return redirect("team-list")
+    else:
+        form = TeamCreateForm(instance=team)
+
+    return render(
+        request,
+        "teams/team_form.html",
+        {
+            "form": form,
+            "page_title": "Edit Team",
+            "page_subtitle": "Update the team details below.",
+            "submit_text": "Save Changes",
+            "is_edit": True,
+            "team": team,
+        },
+    )
+
+@login_required
+@user_passes_test(is_superadmin)
+def employee_create_view(request):
+    if request.method == "POST":
+        form = EmployeeCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Employee created successfully.")
+            return redirect("employee-create")
+    else:
+        form = EmployeeCreateForm()
+
+    return render(request, "teams/employee_create.html", {"form": form})
+

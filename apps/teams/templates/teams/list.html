@@ -3,37 +3,68 @@
 {% block title %}Teams{% endblock %}
 
 {% block content %}
-<h1>Teams</h1>
+<div class="teams-page">
+    <div class="teams-header">
+        <div>
+            <h1 class="teams-title">Teams</h1>
+            <p class="teams-subtitle">View and manage team information.</p>
+        </div>
 
-{% if teams %}
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Team</th>
-                <th>Department</th>
-                <th>Team lead</th>
-                <th>Number of employees</th>
+        {% if user.is_superuser %}
+        <div class="teams-actions">
+            <a href="{% url 'superadmin-team-create' %}" class="btn btn-primary">Add Team</a>
+            <a href="{% url 'employee-create' %}" class="btn btn-outline-primary">Add Employee</a>
+        </div>
+        {% endif %}
+    </div>
 
-                <th>Projects</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for team in teams %}
-                <tr>
-                    <td>{{ team.team_id }}</td>
-                    <td>{{ team.team_name }}</td>
-                    <td>{{ team.department.department_name }}</td>
-                    <td>{{ team.team_leader }}</td>
-                    <td>{{ team.employee_count }}</td>
-
-
-                    <td>{{ team.project_count }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>No teams found.</p>
-{% endif %}
+    {% if teams %}
+    <div class="teams-table-card">
+        <div class="table-responsive">
+            <table class="teams-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Team</th>
+                        <th>Department</th>
+                        <th>Team Lead</th>
+                        <th>Employees</th>
+                        <th>Projects</th>
+                        {% if user.is_superuser %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for team in teams %}
+                    <tr>
+                        <td>{{ team.team_id }}</td>
+                        <td class="fw-semibold">{{ team.team_name }}</td>
+                        <td>{{ team.department.department_name }}</td>
+                        <td>{{ team.team_leader }}</td>
+                        <td>{{ team.employee_count }}</td>
+                        <td>{{ team.project_count }}</td>
+                        {% if user.is_superuser %}
+                        <td>
+                            <a href="{% url 'team-edit' team.team_id %}" class="btn btn-sm btn-outline-secondary">
+                                Edit
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No teams found</h2>
+        <p>There are no teams to display yet.</p>
+        {% if user.is_superuser %}
+        <a href="{% url 'superadmin-team-create' %}" class="btn btn-primary">Create First Team</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

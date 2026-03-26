@@ -1,5 +1,5 @@
 from django import forms
-from .models import Team
+from .models import Team, Employee
 
 
 class TeamCreateForm(forms.ModelForm):
@@ -48,5 +48,23 @@ class TeamCreateForm(forms.ModelForm):
                 "class": "form-control",
                 "rows": 4,
                 "placeholder": "List skills and technologies"
+            }),
+        }
+
+
+class EmployeeCreateForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = [
+            "name",
+            "team",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter employee name"
+            }),
+            "team": forms.Select(attrs={
+                "class": "form-select"
             }),
         }
