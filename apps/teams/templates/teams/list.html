@@ -52,6 +52,13 @@
                                     <a href="{% url 'team-detail' team.team_id %}" class="btn btn-sm btn-primary">
                                         View Team
                                     </a>
+                            
+                                    {% if user.team and user.team.team_id != team.team_id %}
+                                    <a href="{% url 'message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
+                                        Contact
+                                    </a>
+                                    {% endif %}
+                            
                                     {% if user.is_superuser %}
                                     <a href="{% url 'team-edit' team.team_id %}" class="btn btn-sm btn-outline-secondary">
                                         Edit

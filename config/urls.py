@@ -23,4 +23,5 @@ urlpatterns = [
     path("mockups/", include("apps.mockups.urls")),
     path("", include("apps.users.urls")),
     path("", include("apps.teams.urls")),
+    path("", include("apps.team_messages.urls")),
 ]
