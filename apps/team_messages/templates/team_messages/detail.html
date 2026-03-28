@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ message.subject }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">{{ message.subject }}</h1>
+            <p class="text-muted mb-0">
+                {{ message.sender_team.team_name }} to {{ message.recipient_team.team_name }}
+            </p>
+        </div>
+        <a href="{% url 'message-list' %}" class="btn btn-outline-secondary">Back to Messages</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="mb-3">
+                <strong>From Team:</strong> {{ message.sender_team.team_name }}
+            </div>
+            <div class="mb-3">
+                <strong>To Team:</strong> {{ message.recipient_team.team_name }}
+            </div>
+            <div class="mb-3">
+                <strong>Sent By:</strong> {{ message.sent_by }}
+            </div>
+            <div class="mb-3">
+                <strong>Sent At:</strong> {{ message.created_at }}
+            </div>
+            <hr>
+            <div style="white-space: pre-wrap;">{{ message.body }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
