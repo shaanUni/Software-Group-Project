@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
 
-from .forms import TeamCreateForm, EmployeeCreateForm
-from .models import Team, Employee
+from .forms import TeamCreateForm, UserCreateForm
+from .models import Team
 
 
 def is_superadmin(user):
@@ -30,16 +30,25 @@ def superadmin_team_create(request):
 
     return render(request, "teams/team_form.html", {"form": form})
 
+
 @login_required
 def team_detail(request, team_id):
     team = get_object_or_404(
-        Team.objects.select_related("team_leader", "department").prefetch_related("employees"),
+        Team.objects.select_related("team_leader", "department").prefetch_related("users"),
         pk=team_id,
     )
-    
-    employees = team.employees.all()
 
-    return render(request, "teams/detail.html", {"team": team, "employees": employees,})
+    users = team.users.all()
+
+    return render(
+        request,
+        "teams/detail.html",
+        {
+            "team": team,
+            "users": users,
+        },
+    )
+
 
 @login_required
 @user_passes_test(is_superadmin)
@@ -68,17 +77,17 @@ def team_edit_view(request, pk):
         },
     )
 
+
 @login_required
 @user_passes_test(is_superadmin)
-def employee_create_view(request):
+def user_create_view(request):
     if request.method == "POST":
-        form = EmployeeCreateForm(request.POST)
+        form = UserCreateForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Employee created successfully.")
-            return redirect("employee-create")
+            messages.success(request, "User created successfully.")
+            return redirect("user-create")
     else:
-        form = EmployeeCreateForm()
+        form = UserCreateForm()
 
-    return render(request, "teams/employee_create.html", {"form": form})
-
+    return render(request, "teams/user_create.html", {"form": form})

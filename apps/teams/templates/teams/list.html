@@ -7,13 +7,13 @@
     <div class="teams-header">
         <div>
             <h1 class="teams-title">Teams</h1>
-            <p class="teams-subtitle">View teams, employee counts, and quick actions.</p>
+            <p class="teams-subtitle">View teams, user counts, and quick actions.</p>
         </div>
 
         {% if user.is_superuser %}
         <div class="teams-actions">
-            <a href="{% url 'superadmin-team-create' %}" class="btn btn-primary">Add Team</a>
-            <a href="{% url 'employee-create' %}" class="btn btn-outline-primary">Add Employee</a>
+            <a href="{% url 'team-create' %}" class="btn btn-primary">Add Team</a>
+            <a href="{% url 'user-create' %}" class="btn btn-outline-primary">Add User</a>
         </div>
         {% endif %}
     </div>
@@ -71,7 +71,7 @@
         <h2>No teams found</h2>
         <p>There are no teams to display yet.</p>
         {% if user.is_superuser %}
-        <a href="{% url 'superadmin-team-create' %}" class="btn btn-primary">Create First Team</a>
+        <a href="{% url 'team-create' %}" class="btn btn-primary">Create First Team</a>
         {% endif %}
     </div>
     {% endif %}

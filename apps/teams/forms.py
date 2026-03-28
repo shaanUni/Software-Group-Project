@@ -1,5 +1,5 @@
 from django import forms
-from .models import Team, Employee
+from .models import Team, User
 
 
 class TeamCreateForm(forms.ModelForm):
@@ -52,19 +52,49 @@ class TeamCreateForm(forms.ModelForm):
         }
 
 
-class EmployeeCreateForm(forms.ModelForm):
+class UserCreateForm(forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter password"
+        })
+    )
+
     class Meta:
-        model = Employee
+        model = User
         fields = [
-            "name",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
             "team",
+            "password",
         ]
         widgets = {
-            "name": forms.TextInput(attrs={
+            "username": forms.TextInput(attrs={
                 "class": "form-control",
-                "placeholder": "Enter employee name"
+                "placeholder": "Enter username"
+            }),
+            "first_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter first name"
+            }),
+            "last_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter last name"
+            }),
+            "email": forms.EmailInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter email address"
             }),
             "team": forms.Select(attrs={
                 "class": "form-select"
             }),
         }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password"])
+        if commit:
+            user.save()
+        return user

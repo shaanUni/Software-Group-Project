@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
@@ -5,7 +6,7 @@ class Department(models.Model):
     department_id = models.AutoField(primary_key=True)
     department_name = models.TextField(blank=True, null=True)
     department_head = models.ForeignKey(
-        "Employee",
+        "User",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -17,8 +18,8 @@ class Department(models.Model):
         db_table = "department"
 
     def employee_count(self):
-        return self.teams.aggregate(total=models.Count("employees"))["total"] or 0
-    
+        return self.teams.aggregate(total=models.Count("users"))["total"] or 0
+
     def __str__(self):
         return self.department_name or f"Department {self.department_id}"
 
@@ -27,7 +28,7 @@ class Team(models.Model):
     team_id = models.AutoField(primary_key=True)
     team_name = models.TextField(blank=True, null=True)
     team_leader = models.ForeignKey(
-        "Employee",
+        "User",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -50,14 +51,11 @@ class Team(models.Model):
         db_table = "team"
 
     def employee_count(self):
-        return self.employees.count()
+        return self.users.count()
 
     def project_count(self):
         return self.projects.count()
 
-    def codebase_links(self):
-        return self.projects.exclude(codebase__isnull=True).exclude(codebase__exact="")
-    
     def codebase_projects(self):
         return self.projects.exclude(codebase__isnull=True).exclude(codebase__exact="")
 
@@ -65,21 +63,22 @@ class Team(models.Model):
         return self.team_name or f"Team {self.team_id}"
 
 
-class Employee(models.Model):
-    employee_id = models.AutoField(primary_key=True)
-    name = models.TextField(blank=True, null=True)
+class User(AbstractUser):
     team = models.ForeignKey(
         Team,
         on_delete=models.CASCADE,
         db_column="team_id",
-        related_name="employees",
+        related_name="users",
+        null=True,
+        blank=True,
     )
 
     class Meta:
-        db_table = "employee"
+        db_table = "user"
 
     def __str__(self):
-        return self.name or f"Employee {self.employee_id}"
+        full_name = self.get_full_name()
+        return full_name or self.username
 
 
 class Project(models.Model):
