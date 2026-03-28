@@ -24,4 +24,5 @@ urlpatterns = [
     path("", include("apps.users.urls")),
     path("", include("apps.teams.urls")),
     path("", include("apps.team_messages.urls")),
+    path("", include("apps.team_schedule.urls")),
 ]

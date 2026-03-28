@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.mockups",
     "apps.users",
     #"apps.teams",
+    "apps.team_schedule",
     "apps.team_messages",
     "apps.teams.apps.TeamsConfig",
     "bootstrap5",]

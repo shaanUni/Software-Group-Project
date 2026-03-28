@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ meeting.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mb-1">{{ meeting.title }}</h1>
+            <p class="text-muted mb-0">
+                {{ meeting.meeting_date }} at {{ meeting.meeting_time|time:"H:i" }}
+            </p>
+        </div>
+        <a href="{% url 'team-schedule' %}" class="btn btn-outline-secondary">Back to Schedule</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="mb-3">
+                <strong>Team One:</strong> {{ meeting.team_one.team_name }}
+            </div>
+            <div class="mb-3">
+                <strong>Team Two:</strong> {{ meeting.team_two.team_name }}
+            </div>
+            <div class="mb-3">
+                <strong>Created By:</strong> {{ meeting.created_by }}
+            </div>
+            <div class="mb-3">
+                <strong>Date:</strong> {{ meeting.meeting_date }}
+            </div>
+            <div class="mb-3">
+                <strong>Time:</strong> {{ meeting.meeting_time|time:"H:i" }}
+            </div>
+            <div class="mb-0">
+                <strong>Notes:</strong>
+                <div class="mt-2">{{ meeting.notes|default:"No additional notes."|linebreaksbr }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
