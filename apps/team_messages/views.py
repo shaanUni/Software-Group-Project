@@ -11,7 +11,7 @@ from apps.teams.models import Team
 def message_list(request):
     if not request.user.team:
         messages.error(request, "You are not assigned to a team.")
-        return redirect("team-list")
+        # return redirect("team-list")
 
     current_team = request.user.team
 

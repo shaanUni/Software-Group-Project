@@ -21,7 +21,12 @@
             {% include "header.html" %}
         {% endblock %}
 
-        <main class="site-main">
+        <main class="site-main px-4 d-flex">
+            {% if user.is_authenticated %}
+                {% block sidebarMenu %}
+                    {% include "sidebar-menu.html" %}
+                {% endblock %}
+            {% endif %}
             <div class="content-container">
                     {% block content %}{% endblock %}
             </div>

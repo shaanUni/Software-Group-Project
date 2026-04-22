@@ -1,0 +1,66 @@
+<aside class="sidebar bg-white">
+    <div class="sidebar-header">
+        <h2>MENU</h2>
+    </div>
+    <div>
+        <nav class="nav-links">
+            <ul class="nav-list">
+                <li class="nav-list-item">
+                    <a href="{% url 'dashboard-router' %}" class="nav-list-link {% if request.resolver_match.url_name == 'dashboard-router' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'dashboard' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Dashboard
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="{% url 'team-list' %}" class="nav-list-link {% if request.resolver_match.url_name == 'team-list' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'teams' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Teams
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="" class="nav-list-link {% if request.resolver_match.url_name == 'organisation-list' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'organisation' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Organisation
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="{% url 'message-list' %}" class="nav-list-link {% if request.resolver_match.url_name == 'message-list' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'messages' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Messages
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="{% url 'team-schedule' %}" class="nav-list-link {% if request.resolver_match.url_name == 'team-schedule' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'schedule' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Schedule
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>

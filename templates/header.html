@@ -8,51 +8,39 @@
                 </div>
 
                 {% if user.is_authenticated %}
-                    <div class="header-tools">
-                        <div class="search-bar">
-                        </div>
+                    <div class="search-bar">
+                        <label class="hidden" for="search">Search on site</label>
+                        <form action='/search' method='get' class="search-bar-form">
+                            <input id="search" name="q" type="text" placeholder="Search teams, dpts, or managers" class="search-input">
+                            <button class="button">
+                                {% load svg %}
+                                {% svg 'search' %}
+                            </button>
+                        </form>
+                    </div>
 
-                        <div class="profile-section">
+
+                    <div class="profile-section">
+                        <div class="nav-left">
+                            <span class="user-label">Logged in as: {{ user.username }}</span>
+                        </div>
+                        <div class="nav-right">
+                            <form action="{% url 'logout' %}" method="post" class="logout-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-dark">Logout</button>
+                            </form>
                         </div>
                     </div>
                 {% else %}
                     <div class="helpful-links">
                         <ul class="utility-links">
+                            <a href="{% url 'login' %}">Login</a>
                             <li><a href="/help">Help</a></li>
                             <li><a href="/contact-support">Contact Support</a></li>
                         </ul>
                     </div>
                 {% endif %}
             </div>
-        </div>
-    </div>
-
-    <div class="nav-bar">
-        <div class="header-inner">
-            <nav class="main-nav">
-                {% if user.is_authenticated %}
-                    <div class="nav-left">
-                        <span class="user-label">Logged in as: {{ user.username }}</span>
-                    </div>
-
-                    <div class="nav-links">
-                        <a href="{% url 'dashboard-router' %}">Dashboard</a>
-                        <a href="{% url 'team-list' %}">Teams</a>
-                        <a href="{% url 'message-list' %}">Messages</a>
-                        <a href="{% url 'team-schedule' %}">Schedule</a>
-                    </div>
-                    <div class="nav-right">
-                        <form action="{% url 'logout' %}" method="post" class="logout-form">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-dark">Logout</button>
-                        </form>
-                    </div>
-                {% else %}
-                    <div class="nav-links">
-                        <a href="{% url 'login' %}">Login</a>
-                    </div>
-                {% endif %}
-            </nav>
         </div>
     </div>
 </header>
