@@ -11,6 +11,8 @@ contact Shaan if any questions.
 
 ---
 
+## PROJECT SETUP ON WINDOWS MACHINE
+
 ## 1. First-Time Setup 
 
 ### Install Required Software
@@ -126,6 +128,36 @@ Open the app in your browser:
 ```text
 http://127.0.0.1:8000/
 ```
+
+## PROJECT SETUP ON MACOS
+### Follow these steps:
+
+#### 1. Make sure you have python installed on your machine
+Run the following command:
+```
+python3 --version
+```
+If you don't have python installed, google how to install it on mac.
+I would suggest using homebrew.
+
+
+#### 2. Clone the project in your local machine
+```
+git clone https://github.com/shaanUni/Software-Group-Project.git
+```
+
+#### 3. Find the mac_setup.sh file and set the right permissions using terminal
+```
+chmod +x mac_setup.sh
+```
+
+#### 4. Run the setup script
+```
+./mac_setup.sh
+```
+
+#### 5. You're good to go!
+Visit http://localhost:8000/
 
 ## Front end team
 
