@@ -52,75 +52,16 @@ cd group-proj
 
 ---
 
-## 3. Create and Activate a Virtual Environment
-
-Create the virtual environment:
+## 3. Run this command to allow scripts to run
 
 ```powershell
-py -m venv .venv
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
 ```
 
-If `py` does not work, use:
+## 4. Run the Setup Script
 
 ```powershell
-python -m venv .venv
-```
-
-Activate the virtual environment:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-If PowerShell blocks activation, run this once:
-
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-Then activate it again:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-You should now see `(.venv)` at the start of the terminal line.
-
----
-
-## 4. Install Dependencies
-
-```powershell
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-If `requirements.txt` does not exist yet, install Django manually:
-
-```powershell
-pip install "Django>=5.2,<5.3"
-```
-
-Then generate the file with:
-
-```powershell
-pip freeze > requirements.txt
-```
-
----
-
-## 5. Run the Project
-
-Apply database migrations:
-
-```powershell
-python manage.py migrate
-```
-
-Start the development server:
-
-```powershell
-python manage.py runserver
+.\win_setup.ps1
 ```
 
 Open the app in your browser:
