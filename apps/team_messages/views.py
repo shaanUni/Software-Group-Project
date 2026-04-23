@@ -7,11 +7,12 @@ from .models import TeamMessage
 from apps.teams.models import Team
 
 
+# Message inbox
 @login_required
 def message_list(request):
     if not request.user.team:
         messages.error(request, "You are not assigned to a team.")
-        # return redirect("team-list")
+        return redirect("team-list")
 
     current_team = request.user.team
 
@@ -29,6 +30,29 @@ def message_list(request):
         {
             "current_team": current_team,
             "inbox": inbox,
+            "sent": sent,
+        },
+    )
+
+# Messages sent
+@login_required
+def message_sent(request):
+    if not request.user.team:
+        messages.error(request, "You are not assigned to a team.")
+        return redirect("team-list")
+
+    current_team = request.user.team
+
+    sent = TeamMessage.objects.select_related(
+        "sender_team", "recipient_team", "sent_by"
+    ).filter(sender_team=current_team)
+
+
+    return render(
+        request,
+        "team_messages/sent.html",
+        {
+            "current_team": current_team,
             "sent": sent,
         },
     )
