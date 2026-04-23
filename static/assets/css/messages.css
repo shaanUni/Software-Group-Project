@@ -1,0 +1,108 @@
+.section-navigation {
+    padding: 20px 0;
+    background-color: #fff;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px 10px;
+    width: 301px;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-navigation .new-message-button,
+.section-navigation .back-button {
+    display: flex;
+    justify-content: center;
+}
+
+.section-navigation .nav-links {
+    display: flex;
+    width: 100%;
+}
+
+.section-navigation .nav-links .nav-list {
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.section-navigation .nav-links .nav-list .nav-list-item {
+    padding-bottom: 15px;
+}
+.section-navigation .nav-links .nav-list .nav-list-item a {
+    border-radius: 0 10px 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #2837A3;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 5px 10px;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.section-navigation .nav-links .nav-list .nav-list-item a.active {
+    background-color: #2837A3;
+    color: #fff;
+}
+
+.section-navigation .nav-links .nav-list .nav-list-item:hover a {
+    background-color: #2837A3;
+}
+
+.section-navigation .nav-links .nav-list .nav-list-item:hover a {
+    color: #fff;
+}
+
+.messages-layout {
+    width: 100%;
+}
+
+.messages-layout-inner {
+    padding: 35px;
+    background-color: #fff;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px 10px;
+}
+
+.messages-layout-inner .messages-container .message-card {
+    background-color: #2837A3;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid transparent;
+}
+
+.messages-layout-inner .messages-container .message-card:hover {
+    border: 1px solid #2837A3;
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.messages-layout-inner .messages-container .message-card a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.messages-layout-inner .messages-container .message-card:hover a {
+    color: #2837A3;
+}
+
+.messages-layout-inner .messages-container .message-card a h3{
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.messages-layout-inner .messages-container .message-card a h4.message-title {
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.messages-layout-inner .messages-container .message-card a .message-details {
+    margin-bottom: 10px;
+}
+
+.messages-layout-inner .messages-container .message-card a .message-details span{
+    font-size: 14px;
+    font-weight: 400;
+}

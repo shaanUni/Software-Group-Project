@@ -1,0 +1,21 @@
+<div class="section-navigation">
+    <div class="nav-links">
+        <ul class="nav-list">
+            <li class="nav-list-item">
+                <a href="{% url 'message-list' %}" class="nav-list-link {% if request.resolver_match.url_name == 'message-list' or request.resolver_match.url_name == 'message-detail' %}active{% endif %}">Inbox</a>
+            </li>
+            <li class="nav-list-item"><a href="{% url 'message-sent' %}" class="nav-list-link {% if request.resolver_match.url_name == 'message-sent' %}active{% endif %}">Sent</a></li>
+            <li class="nav-list-item"><a href="" class="nav-list-link {% if request.resolver_match.url_name == 'message-draft' %}active{% endif %}">Drafts</a></li>
+        </ul>
+    </div>
+    <div class="new-message-button">
+        <button class="btn btn-primary" onclick="location.href='{% url 'message-create' %}'">
+            New Message
+        </button>
+    </div>
+    {% if request.resolver_match.url_name == 'message-detail' %}
+        <div class="back-button mt-3">
+            <a href="{% url 'message-list' %}" class="btn btn-sm btn-outline-primary">Back to Inbox</a>
+        </div>
+    {% endif %}
+</div>

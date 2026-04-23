@@ -16,6 +16,34 @@ body.site-body {
     color: #111827;
 }
 
+/*  Buttons  */
+.btn.btn-primary {
+    background-color: #2837A3;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.btn.btn-primary:hover {
+    background-color: #fff;
+    color: #2837A3;
+    border: 1px solid #2837A3;
+    font-weight: 600;
+
+}
+
+.btn.btn-outline-primary {
+    background-color: #fff;
+    color: #2837A3;
+    border: 1px solid #2837A3;
+}
+
+.btn.btn-outline-primary:hover {
+    background-color: #2837A3;
+    color: #fff;
+    border: 1px solid transparent;
+}
+
+
 .site-wrapper {
     min-height: 100vh;
     display: flex;
