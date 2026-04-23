@@ -1,28 +1,6 @@
 /*  Authors: w2112281, w2072520  */
 
 
-body {
-    font-family: Arial, sans-serif;
-}
-
-
-/* UL GLABAL STYLING */
-ul {
-    list-style: none;
-
-}
-
-ul li:last-child {
-    margin-right: 0 !important;
-}
-
-ul li a {
-    text-decoration: none;
-}
-
-ul li a:hover {
-    text-decoration: underline;
-}
 
 
 /* Header */

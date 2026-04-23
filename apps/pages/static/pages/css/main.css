@@ -1,4 +1,6 @@
-/*header and base css*/
+/*  Authors: w2112281, w2072520  */
+
+/*  Global Styles  */
 html,
 body {
     height: 100%;
@@ -6,9 +8,29 @@ body {
     padding: 0;
 }
 
+/* Hidden Class to use to hide elements when needed */
 .hidden {
     display: none;
 }
+
+/* UL GLOBAL STYLING */
+ul {
+    list-style: none;
+
+}
+
+ul li:last-child {
+    margin-right: 0 !important;
+}
+
+ul li a {
+    text-decoration: none;
+}
+
+ul li a:hover {
+    text-decoration: underline;
+}
+
 
 body.site-body {
     font-family: "Instrument Sans", Arial, sans-serif;
@@ -16,7 +38,7 @@ body.site-body {
     color: #111827;
 }
 
-/*  Buttons  */
+/*  BUTTONS  */
 .btn.btn-primary {
     background-color: #2837A3;
     transition: all 0.3s ease;
