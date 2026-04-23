@@ -91,6 +91,15 @@
                         <div class="field-error">{{ form.key_skills_technologies.errors }}</div>
                     {% endif %}
                 </div>
+                <div class="form-group">
+                    <label for="{{ form.downstream_dependency.id_for_label }}" class="form-label">
+                        Downstream Dependency
+                    </label>
+                    {{ form.downstream_dependency }}
+                    {% if form.downstream_dependency.errors %}
+                        <div class="field-error">{{ form.downstream_dependency.errors }}</div>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-actions">

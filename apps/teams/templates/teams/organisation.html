@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Organisation{% endblock %}
+
+{% block content %}
+<div class="organisation-page">
+    <div class="organisation-header">
+        <div>
+            <h1 class="organisation-title">Organisation</h1>
+            <p class="organisation-subtitle">Visual view of all teams and their dependencies.</p>
+        </div>
+    </div>
+
+    {% if teams %}
+    <div class="organisation-layout">
+        <div class="organisation-card">
+            <div class="card-header-row">
+                <h2 class="section-title">Team Dependency Map</h2>
+            </div>
+
+            {{ team_data|json_script:"team-data" }}
+
+            <div id="org-canvas">
+                <svg id="org-lines"></svg>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No teams found</h2>
+        <p>There are no teams to display yet.</p>
+        {% if user.is_superuser %}
+        <a href="{% url 'team-create' %}" class="btn btn-primary">Create First Team</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .organisation-page {
+        padding: 24px;
+    }
+
+    .organisation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+
+    .organisation-title {
+        margin: 0;
+    }
+
+    .organisation-subtitle {
+        margin: 6px 0 0 0;
+        color: #6b7280;
+    }
+
+    .organisation-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .organisation-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        margin: 0;
+    }
+
+    #org-canvas {
+        position: relative;
+        width: 100%;
+        min-height: 700px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    #org-lines {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .team-node {
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        border: 3px solid #2563eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 12px;
+        box-sizing: border-box;
+        background: #dbeafe;
+        color: #1e3a8a;
+        font-weight: 600;
+        word-break: break-word;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+        z-index: 2;
+    }
+
+    .dependency-line {
+        stroke: #64748b;
+        stroke-width: 2;
+    }
+
+    .empty-state {
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+        .organisation-page {
+            padding: 16px;
+        }
+
+        #org-canvas {
+            min-height: 500px;
+        }
+
+        .team-node {
+            width: 110px;
+            height: 110px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const teamDataElement = document.getElementById("team-data");
+        const canvas = document.getElementById("org-canvas");
+        const svg = document.getElementById("org-lines");
+
+        if (!teamDataElement || !canvas || !svg) return;
+
+        const teams = JSON.parse(teamDataElement.textContent);
+
+        function drawTeams() {
+            canvas.querySelectorAll(".team-node").forEach(node => node.remove());
+            svg.innerHTML = "";
+
+            const nodeSize = window.innerWidth <= 768 ? 110 : 140;
+            const levelGap = window.innerWidth <= 768 ? 170 : 220;
+            const siblingGap = window.innerWidth <= 768 ? 140 : 180;
+            const topPadding = 60;
+            const leftPadding = 80;
+
+            const teamMap = {};
+            const upstreamMap = {};
+            const positions = {};
+            const visited = new Set();
+
+            teams.forEach(team => {
+                teamMap[team.id] = team;
+                upstreamMap[team.id] = [];
+            });
+
+            teams.forEach(team => {
+                if (team.downstream_dependency_id && upstreamMap[team.downstream_dependency_id]) {
+                    upstreamMap[team.downstream_dependency_id].push(team.id);
+                }
+            });
+
+            function subtreeWidth(teamId) {
+                const children = upstreamMap[teamId] || [];
+                if (!children.length) return 1;
+
+                let width = 0;
+                children.forEach(childId => {
+                    width += subtreeWidth(childId);
+                });
+
+                return Math.max(width, 1);
+            }
+
+            const roots = teams
+                .filter(team => !team.downstream_dependency_id)
+                .map(team => team.id);
+
+            let currentRootX = leftPadding;
+
+            function layoutTree(teamId, centerX, level) {
+                if (visited.has(teamId)) return;
+                visited.add(teamId);
+
+                const y = topPadding + level * levelGap;
+                positions[teamId] = {
+                    x: centerX - nodeSize / 2,
+                    y: y,
+                    centerX: centerX,
+                    centerY: y + nodeSize / 2
+                };
+
+                const children = upstreamMap[teamId] || [];
+                if (!children.length) return;
+
+                const childWidths = children.map(childId => subtreeWidth(childId));
+                const totalUnits = childWidths.reduce((a, b) => a + b, 0);
+                const totalWidth = (totalUnits - 1) * siblingGap;
+
+                let startX = centerX - totalWidth / 2;
+
+                children.forEach((childId, index) => {
+                    const childUnits = childWidths[index];
+                    const childSpan = Math.max((childUnits - 1) * siblingGap, 0);
+                    const childCenterX = startX + childSpan / 2;
+
+                    layoutTree(childId, childCenterX, level + 1);
+
+                    startX += childSpan + siblingGap;
+                });
+            }
+
+            if (roots.length) {
+                roots.forEach(rootId => {
+                    const widthUnits = subtreeWidth(rootId);
+                    const treeWidth = Math.max((widthUnits - 1) * siblingGap, nodeSize);
+                    const rootCenterX = currentRootX + treeWidth / 2;
+
+                    layoutTree(rootId, rootCenterX, 0);
+
+                    currentRootX += treeWidth + 120;
+                });
+            }
+
+            const unplaced = teams.filter(team => !positions[team.id]);
+
+            let fallbackX = leftPadding;
+            let fallbackY = topPadding;
+
+            unplaced.forEach(team => {
+                positions[team.id] = {
+                    x: fallbackX,
+                    y: fallbackY,
+                    centerX: fallbackX + nodeSize / 2,
+                    centerY: fallbackY + nodeSize / 2
+                };
+
+                fallbackX += siblingGap;
+                if (fallbackX > canvas.clientWidth - 200) {
+                    fallbackX = leftPadding;
+                    fallbackY += levelGap;
+                }
+            });
+
+            let maxX = 0;
+            let maxY = 0;
+
+            teams.forEach(team => {
+                const pos = positions[team.id];
+
+                const node = document.createElement("div");
+                node.className = "team-node";
+                node.style.width = `${nodeSize}px`;
+                node.style.height = `${nodeSize}px`;
+                node.style.left = `${pos.x}px`;
+                node.style.top = `${pos.y}px`;
+                node.textContent = team.name;
+
+                canvas.appendChild(node);
+
+                maxX = Math.max(maxX, pos.x + nodeSize);
+                maxY = Math.max(maxY, pos.y + nodeSize);
+            });
+
+            const canvasWidth = Math.max(canvas.clientWidth, maxX + 80);
+            const canvasHeight = Math.max(700, maxY + 80);
+
+            canvas.style.minHeight = `${canvasHeight}px`;
+            svg.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
+            svg.setAttribute("width", canvasWidth);
+            svg.setAttribute("height", canvasHeight);
+
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+            marker.setAttribute("id", "arrowhead");
+            marker.setAttribute("markerWidth", "10");
+            marker.setAttribute("markerHeight", "7");
+            marker.setAttribute("refX", "9");
+            marker.setAttribute("refY", "3.5");
+            marker.setAttribute("orient", "auto");
+            marker.setAttribute("markerUnits", "strokeWidth");
+
+            const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            arrowPath.setAttribute("d", "M0,0 L10,3.5 L0,7 Z");
+            arrowPath.setAttribute("fill", "#64748b");
+
+            marker.appendChild(arrowPath);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+
+            teams.forEach(team => {
+                const targetId = team.downstream_dependency_id;
+                if (!targetId) return;
+                if (!positions[team.id] || !positions[targetId]) return;
+
+                const from = positions[team.id];
+                const to = positions[targetId];
+
+                const startX = from.centerX;
+                const startY = from.y;
+                const endX = to.centerX;
+                const endY = to.y + nodeSize;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+                const midY = (startY + endY) / 2;
+                const d = `
+                    M ${startX} ${startY}
+                    C ${startX} ${midY},
+                      ${endX} ${midY},
+                      ${endX} ${endY}
+                `;
+
+                path.setAttribute("d", d);
+                path.setAttribute("fill", "none");
+                path.setAttribute("stroke", "#64748b");
+                path.setAttribute("stroke-width", "2.5");
+                path.setAttribute("marker-end", "url(#arrowhead)");
+
+                svg.appendChild(path);
+            });
+        }
+
+        drawTeams();
+        window.addEventListener("resize", drawTeams);
+    });
+</script>
+{% endblock %}
