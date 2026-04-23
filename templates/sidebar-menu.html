@@ -1,3 +1,5 @@
+<!-- Authors: w2112281 -->
+
 <aside class="sidebar bg-white">
     <div class="sidebar-header">
         <h2>MENU</h2>
@@ -39,7 +41,7 @@
                     </a>
                 </li>
                 <li class="nav-list-item">
-                    <a href="{% url 'message-list' %}" class="nav-list-link {% if request.resolver_match.url_name == 'message-list' %}active{% endif %}">
+                    <a href="{% url 'messaging:message-list' %}" class="nav-list-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
                         <div class="nav-list-icon">
                             {% load svg %}
                             {% svg 'messages' class="nav-list-icon-svg" %}
