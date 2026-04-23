@@ -110,3 +110,28 @@ class Project(models.Model):
 
     def __str__(self):
         return self.project_name or f"Project {self.project_id}"
+    
+
+
+class AuditTrail(models.Model):
+    audit_id = models.AutoField(primary_key=True)
+    admin_user = models.ForeignKey(
+        "User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="audit_entries",
+    )
+    action = models.CharField(max_length=50)
+    model_name = models.CharField(max_length=100)
+    object_id = models.CharField(max_length=50, blank=True, null=True)
+    object_repr = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "audit_trail"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.created_at} - {self.action} - {self.model_name}"

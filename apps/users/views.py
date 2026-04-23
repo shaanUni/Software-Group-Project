@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render
-
+from apps.teams.models import AuditTrail
 from .forms import RegisterForm, UserUpdateForm
 
 
@@ -41,7 +41,15 @@ def user_dashboard(request):
 
 @user_passes_test(is_admin_user, login_url="/users/login/")
 def admin_dashboard(request):
-    return render(request, "users/admin_dashboard.html")
+    audit_entries = AuditTrail.objects.select_related("admin_user")[:10]
+
+    return render(
+        request,
+        "users/admin_dashboard.html",
+        {
+            "audit_entries": audit_entries,
+        },
+    )
 
 
 @login_required
