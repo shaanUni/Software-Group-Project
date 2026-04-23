@@ -91,3 +91,24 @@ def user_create_view(request):
         form = UserCreateForm()
 
     return render(request, "teams/user_create.html", {"form": form})
+
+
+def organisation_view(request):
+    teams = Team.objects.all().order_by("team_name")
+
+    team_data = [
+        {
+            "id": team.team_id,
+            "name": team.team_name or f"Team {team.team_id}",
+        }
+        for team in teams
+    ]
+
+    return render(
+        request,
+        "teams/organisation.html",
+        {
+            "teams": teams,
+            "team_data": team_data,
+        },
+    )

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Organisation{% endblock %}
+
+{% block content %}
+<div class="organisation-page">
+    <div class="organisation-header">
+        <div>
+            <h1 class="organisation-title">Organisation</h1>
+            <p class="organisation-subtitle">Visual view of all teams in the organisation.</p>
+        </div>
+    </div>
+
+    {% if teams %}
+    <div class="organisation-layout">
+        <div class="organisation-card">
+            <div class="card-header-row">
+                <h2 class="section-title">Team Map</h2>
+            </div>
+
+            {{ team_data|json_script:"team-data" }}
+
+            <div id="org-canvas"></div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No teams found</h2>
+        <p>There are no teams to display yet.</p>
+        {% if user.is_superuser %}
+        <a href="{% url 'team-create' %}" class="btn btn-primary">Create First Team</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .organisation-page {
+        padding: 24px;
+    }
+
+    .organisation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+
+    .organisation-title {
+        margin: 0;
+    }
+
+    .organisation-subtitle {
+        margin: 6px 0 0 0;
+        color: #6b7280;
+    }
+
+    .organisation-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .organisation-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        margin: 0;
+    }
+
+    #org-canvas {
+        position: relative;
+        width: 100%;
+        min-height: 700px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .team-node {
+        position: absolute;
+        width: 140px;
+        height: 140px;
+        border: 3px solid #2563eb;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 12px;
+        box-sizing: border-box;
+        background: #dbeafe;
+        color: #1e3a8a;
+        font-weight: 600;
+        word-break: break-word;
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+    }
+
+    .empty-state {
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 768px) {
+        .organisation-page {
+            padding: 16px;
+        }
+
+        #org-canvas {
+            min-height: 500px;
+        }
+
+        .team-node {
+            width: 110px;
+            height: 110px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const teamDataElement = document.getElementById("team-data");
+        const canvas = document.getElementById("org-canvas");
+
+        if (!teamDataElement || !canvas) return;
+
+        const teams = JSON.parse(teamDataElement.textContent);
+
+        function drawTeams() {
+            canvas.innerHTML = "";
+
+            const canvasWidth = canvas.clientWidth;
+            const nodeSize = window.innerWidth <= 768 ? 110 : 140;
+            const gap = 40;
+
+            const perRow = Math.max(1, Math.floor((canvasWidth - gap) / (nodeSize + gap)));
+
+            teams.forEach((team, index) => {
+                const row = Math.floor(index / perRow);
+                const col = index % perRow;
+
+                const x = gap + col * (nodeSize + gap);
+                const y = gap + row * (nodeSize + gap);
+
+                const node = document.createElement("div");
+                node.className = "team-node";
+                node.style.width = `${nodeSize}px`;
+                node.style.height = `${nodeSize}px`;
+                node.style.left = `${x}px`;
+                node.style.top = `${y}px`;
+                node.textContent = team.name;
+
+                canvas.appendChild(node);
+            });
+
+            const rows = Math.ceil(teams.length / perRow);
+            canvas.style.minHeight = `${rows * (nodeSize + gap) + gap}px`;
+        }
+
+        drawTeams();
+        window.addEventListener("resize", drawTeams);
+    });
+</script>
+{% endblock %}
