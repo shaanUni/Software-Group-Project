@@ -1,13 +1,11 @@
-{% load static %}
-{% load bootstrap5 %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sky Teams{% endblock %}</title>
-
+    {% load static %}
+    {% load bootstrap5 %}
     {% bootstrap_css %}
 
     <link rel="stylesheet" href="{% static 'pages/css/main.css' %}">
@@ -23,7 +21,12 @@
             {% include "header.html" %}
         {% endblock %}
 
-        <main class="site-main">
+        <main class="site-main px-4 d-flex">
+            {% if user.is_authenticated %}
+                {% block sidebarMenu %}
+                    {% include "sidebar-menu.html" %}
+                {% endblock %}
+            {% endif %}
             <div class="content-container">
                     {% block content %}{% endblock %}
             </div>
