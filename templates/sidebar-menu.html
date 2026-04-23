@@ -28,7 +28,7 @@
                     </a>
                 </li>
                 <li class="nav-list-item">
-                    <a href="" class="nav-list-link {% if request.resolver_match.url_name == 'organisation-list' %}active{% endif %}">
+                    <a href="{% url 'organisation' %}" class="nav-list-link {% if request.resolver_match.url_name == 'organisation' %}active{% endif %}">
                         <div class="nav-list-icon">
                             {% load svg %}
                             {% svg 'organisation' class="nav-list-icon-svg" %}
