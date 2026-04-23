@@ -16,19 +16,18 @@
 
     <div class="messages-layout ps-5">
         <div class="messages-layout-inner">
-            <div class="card border-0 mb-4">
+            <div class="card border-0">
                 {% if inbox %}
                     <div class="messages-container">
                         {% for msg in inbox %}
-                            <div class="message-card">
-                                <a href="{% url 'message-detail' msg.message_id %}">
+                            <div class="message-card mb-4">
+                                <a href="{% url 'messaging:message-detail' msg.message_id %}">
                                     <h3>{{ msg.sender_team.team_name }}</h3>
                                     <h4 class="message-title">{{ msg.subject }}</h4>
                                     <div class="message-details">
                                         <span><strong>Sent by</strong> {{ msg.sent_by }}</span>
                                         <span><strong>on</strong> {{ msg.created_at }}</span>
                                     </div>
-                                    <p class="message-content">{{ msg.body|truncatechars:100 }}</p>
                                 </a>
                             </div>
                         {% endfor %}

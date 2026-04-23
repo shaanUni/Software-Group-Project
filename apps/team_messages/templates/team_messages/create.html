@@ -23,7 +23,7 @@
                         <h1 class="mb-1">New Message</h1>
                         <p class="text-muted mb-0">Send a message from {{ sender_team.team_name }}</p>
                     </div>
-                    <a href="{% url 'message-list' %}" class="btn btn-outline-secondary">Back to Messages</a>
+                    <a href="{% url 'messaging:message-list' %}" class="btn btn-outline-secondary">Back to Messages</a>
                 </div>
 
                 <div class="card shadow-sm border-0">
@@ -57,7 +57,7 @@
 
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">Send Message</button>
-                                <a href="{% url 'message-list' %}" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="{% url 'messaging:message-list' %}" class="btn btn-outline-secondary">Cancel</a>
                             </div>
                         </form>
                     </div>
