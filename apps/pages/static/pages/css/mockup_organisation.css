@@ -1,0 +1,112 @@
+/* Organisation Page Styles */
+
+.org-container {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.org-sidebar {
+    min-width: 300px;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.org-main {
+    flex: 1;
+    padding: 20px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+}
+
+.org-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0052cc;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0052cc;
+}
+
+.org-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.org-list li {
+    padding: 10px 0;
+    color: #0052cc;
+    font-weight: 500;
+}
+
+.legend {
+    margin-top: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.legend-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.view-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.view-controls button {
+    padding: 8px 16px;
+    border: 2px solid #ccc;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.view-controls button.active {
+    border-color: #0052cc;
+    color: #0052cc;
+}
+
+.network-placeholder {
+    padding: 60px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+}
+
+.org-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.org-filters button {
+    padding: 10px 16px;
+    background-color: #8ab4f8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.org-filters button:hover {
+    background-color: #5c7cda;
+}
