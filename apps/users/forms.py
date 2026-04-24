@@ -1,3 +1,5 @@
+# Authors: w2143865
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
@@ -53,20 +55,16 @@ class UserUpdateForm(forms.ModelForm):
         fields = ["first_name", "last_name", "username", "email"]
 
 
-class BaseSkyLoginForm(AuthenticationForm):
+class MemberLoginForm(AuthenticationForm):
     remember_me = forms.BooleanField(required=False)
-
-    username_label = "Username"
-    username_placeholder = "Enter your username"
-    password_placeholder = "Enter your password"
 
     def __init__(self, request=None, *args, **kwargs):
         super().__init__(request=request, *args, **kwargs)
-        self.fields["username"].label = self.username_label
+        self.fields["username"].label = "Email Address"
         self.fields["username"].widget.attrs.update(
             {
                 "class": "auth-input",
-                "placeholder": self.username_placeholder,
+                "placeholder": "example@sky.com",
                 "autofocus": True,
             }
         )
@@ -74,22 +72,49 @@ class BaseSkyLoginForm(AuthenticationForm):
         self.fields["password"].widget.attrs.update(
             {
                 "class": "auth-input",
-                "placeholder": self.password_placeholder,
+                "placeholder": "#####",
             }
         )
         self.fields["remember_me"].widget.attrs.update({"class": "auth-checkbox-input"})
 
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+        if user.is_staff:
+            raise forms.ValidationError(
+                "Please use the admin login page for this account.",
+                code="admin_account",
+            )
 
-class MemberLoginForm(BaseSkyLoginForm):
-    username_label = "Email Address"
-    username_placeholder = "example@sky.com"
-    password_placeholder = "#####"
 
+class AdminLoginForm(AuthenticationForm):
+    remember_me = forms.BooleanField(required=False)
 
-class AdminLoginForm(BaseSkyLoginForm):
-    username_label = "Admin ID"
-    username_placeholder = "Enter your admin ID"
-    password_placeholder = "#####"
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request=request, *args, **kwargs)
+        self.fields["username"].label = "Admin ID"
+        self.fields["username"].widget.attrs.update(
+            {
+                "class": "auth-input",
+                "placeholder": "Enter your admin ID",
+                "autofocus": True,
+            }
+        )
+        self.fields["password"].label = "Password"
+        self.fields["password"].widget.attrs.update(
+            {
+                "class": "auth-input",
+                "placeholder": "#####",
+            }
+        )
+        self.fields["remember_me"].widget.attrs.update({"class": "auth-checkbox-input"})
+
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+        if not user.is_staff:
+            raise forms.ValidationError(
+                "Please use the member login page for this account.",
+                code="not_admin_account",
+            )
 
 
 class SkyPasswordResetForm(PasswordResetForm):

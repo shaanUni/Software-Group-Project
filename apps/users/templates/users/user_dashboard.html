@@ -1,7 +1,14 @@
+<!-- Authors: w2143865 -->
+
 {% extends "base.html" %}
+{% load static %}
 {% load svg %}
 
 {% block title %}User Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pages/css/user-dashboard.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="user-dashboard">

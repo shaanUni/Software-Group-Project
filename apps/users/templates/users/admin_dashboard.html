@@ -1,6 +1,13 @@
+<!-- Authors: w2143865 -->
+
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pages/css/admin-dashboard.css' %}">
+{% endblock %}
 
 {% block content %}
 <section class="dashboard-page dashboard-page--admin">

@@ -1,3 +1,5 @@
+# Authors: w2143865
+
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -12,69 +14,6 @@ from apps.teams.models import Project, Team
 
 def is_admin_user(user):
     return user.is_authenticated and user.is_staff
-
-
-def _metric_value(value):
-    return value if value else "-"
-
-
-def _build_admin_activities(limit=4):
-    activity_items = []
-
-    for message in TeamMessage.objects.select_related("sender_team", "recipient_team").order_by("-created_at")[:10]:
-        activity_items.append(
-            {
-                "title": f"Message: {message.subject}",
-                "time": timezone.localtime(message.created_at),
-                "display_time": timezone.localtime(message.created_at).strftime("%d %b %Y %H:%M"),
-            }
-        )
-
-    for meeting in TeamMeeting.objects.select_related("team_one", "team_two").order_by("-created_at")[:10]:
-        activity_items.append(
-            {
-                "title": f"Meeting created: {meeting.title}",
-                "time": timezone.localtime(meeting.created_at),
-                "display_time": timezone.localtime(meeting.created_at).strftime("%d %b %Y %H:%M"),
-            }
-        )
-
-    activity_items.sort(key=lambda item: item["time"], reverse=True)
-    return activity_items[:limit]
-
-
-def _build_user_activities(user, limit=4):
-    if not user.team:
-        return []
-
-    activity_items = []
-
-    messages_qs = TeamMessage.objects.select_related("sender_team", "recipient_team").filter(
-        recipient_team=user.team
-    ).order_by("-created_at")[:10]
-    for message in messages_qs:
-        activity_items.append(
-            {
-                "title": f"New message: {message.subject}",
-                "time": timezone.localtime(message.created_at),
-                "display_time": timezone.localtime(message.created_at).strftime("%d %b %Y %H:%M"),
-            }
-        )
-
-    meetings_qs = TeamMeeting.objects.select_related("team_one", "team_two").filter(
-        team_one=user.team
-    ) | TeamMeeting.objects.select_related("team_one", "team_two").filter(team_two=user.team)
-    for meeting in meetings_qs.order_by("-created_at")[:10]:
-        activity_items.append(
-            {
-                "title": f"Meeting created: {meeting.title}",
-                "time": timezone.localtime(meeting.created_at),
-                "display_time": timezone.localtime(meeting.created_at).strftime("%d %b %Y %H:%M"),
-            }
-        )
-
-    activity_items.sort(key=lambda item: item["time"], reverse=True)
-    return activity_items[:limit]
 
 
 def register_view(request):
@@ -129,7 +68,35 @@ def user_dashboard(request):
     if not recent_teams:
         recent_teams = [{"name": "-", "manager": "-", "detail_url": "#"}]
 
-    recent_activities = _build_user_activities(request.user, limit=4)
+    recent_activities = []
+    if user_team:
+        messages_qs = TeamMessage.objects.select_related("sender_team", "recipient_team").filter(
+            recipient_team=user_team
+        ).order_by("-created_at")[:10]
+        for message in messages_qs:
+            recent_activities.append(
+                {
+                    "title": f"New message: {message.subject}",
+                    "time": timezone.localtime(message.created_at),
+                    "display_time": timezone.localtime(message.created_at).strftime("%d %b %Y %H:%M"),
+                }
+            )
+
+        meetings_qs = TeamMeeting.objects.select_related("team_one", "team_two").filter(
+            team_one=user_team
+        ) | TeamMeeting.objects.select_related("team_one", "team_two").filter(team_two=user_team)
+        for meeting in meetings_qs.order_by("-created_at")[:10]:
+            recent_activities.append(
+                {
+                    "title": f"Meeting created: {meeting.title}",
+                    "time": timezone.localtime(meeting.created_at),
+                    "display_time": timezone.localtime(meeting.created_at).strftime("%d %b %Y %H:%M"),
+                }
+            )
+
+        recent_activities.sort(key=lambda item: item["time"], reverse=True)
+        recent_activities = recent_activities[:4]
+
     if not recent_activities:
         recent_activities = [{"title": "-", "display_time": "-"}]
 
@@ -212,15 +179,36 @@ def admin_dashboard(request):
             }
         ]
 
-    recent_activities = _build_admin_activities(limit=4)
+    recent_activities = []
+    for message in TeamMessage.objects.select_related("sender_team", "recipient_team").order_by("-created_at")[:10]:
+        recent_activities.append(
+            {
+                "title": f"Message: {message.subject}",
+                "time": timezone.localtime(message.created_at),
+                "display_time": timezone.localtime(message.created_at).strftime("%d %b %Y %H:%M"),
+            }
+        )
+
+    for meeting in TeamMeeting.objects.select_related("team_one", "team_two").order_by("-created_at")[:10]:
+        recent_activities.append(
+            {
+                "title": f"Meeting created: {meeting.title}",
+                "time": timezone.localtime(meeting.created_at),
+                "display_time": timezone.localtime(meeting.created_at).strftime("%d %b %Y %H:%M"),
+            }
+        )
+
+    recent_activities.sort(key=lambda item: item["time"], reverse=True)
+    recent_activities = recent_activities[:4]
+
     if not recent_activities:
         recent_activities = [{"title": "-", "display_time": "-"}]
 
     metric_cards = [
-        {"label": "Total Teams", "value": _metric_value(total_teams)},
-        {"label": "Active Projects", "value": _metric_value(active_projects)},
-        {"label": "Pending Issues", "value": _metric_value(pending_issues)},
-        {"label": "Updates Today", "value": _metric_value(updates_today)},
+        {"label": "Total Teams", "value": total_teams if total_teams else "-"},
+        {"label": "Active Projects", "value": active_projects if active_projects else "-"},
+        {"label": "Pending Issues", "value": pending_issues if pending_issues else "-"},
+        {"label": "Updates Today", "value": updates_today if updates_today else "-"},
     ]
 
     return render(
