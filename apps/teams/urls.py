@@ -4,6 +4,7 @@ from .views import (
     superadmin_team_create,
     user_create_view,
     team_edit_view,
+    organisation_view,
     team_detail,
 )
 
@@ -13,4 +14,5 @@ urlpatterns = [
     path("teams/<int:team_id>/", team_detail, name="team-detail"),
     path("teams/<int:pk>/edit/", team_edit_view, name="team-edit"),
     path("users/create/", user_create_view, name="user-create"),
+    path("organisation/", organisation_view, name="organisation"),
 ]

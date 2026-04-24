@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.core.exceptions import ValidationError
 
 class Department(models.Model):
     department_id = models.AutoField(primary_key=True)
@@ -47,6 +47,14 @@ class Team(models.Model):
     development_focus_areas = models.TextField(blank=True, null=True)
     key_skills_technologies = models.TextField(blank=True, null=True)
 
+    downstream_dependency = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="upstream_teams",
+    )
+
     class Meta:
         db_table = "team"
 
@@ -55,6 +63,10 @@ class Team(models.Model):
 
     def project_count(self):
         return self.projects.count()
+    
+    def clean(self):
+        if self.downstream_dependency and self.downstream_dependency_id == self.team_id:
+            raise ValidationError("A team cannot depend on itself.")
 
     def codebase_projects(self):
         return self.projects.exclude(codebase__isnull=True).exclude(codebase__exact="")

@@ -1,6 +1,6 @@
 {% extends "registration/auth_base.html" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Admin Login{% endblock %}
 
 {% block auth_content %}
 <section class="auth-page auth-page--centered">
@@ -10,7 +10,7 @@
             {% svg 'siteLogo' %}
         </div>
         <div class="auth-header">
-            <h1 class="auth-title">Teams Registry</h1>
+            <h1 class="auth-title">Admin Portal</h1>
         </div>
 
         <form method="post" class="auth-form">
@@ -49,7 +49,7 @@
 
         <div class="auth-divider"></div>
         <div class="auth-footer-link">
-            <a href="{% url 'admin-login' %}" class="auth-inline-link">Admin Login</a>
+            <a href="{% url 'login' %}" class="auth-inline-link">Back to member login</a>
         </div>
     </div>
 </section>

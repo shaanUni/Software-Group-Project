@@ -1,9 +1,61 @@
 {% extends "base.html" %}
+{% load svg %}
 
 {% block title %}User Dashboard{% endblock %}
 
 {% block content %}
-<h1>User Dashboard</h1>
-<p>You are logged in as a normal user.</p>
-<p>This is the normal user area.</p>
+<section class="user-dashboard">
+    <div class="user-dashboard-actions">
+        {% for link in quick_links %}
+            <a href="{{ link.url }}" class="user-dashboard-card user-dashboard-card--action">
+                <div class="user-dashboard-card-header">
+                    <h2>{{ link.title }}</h2>
+                    <span class="user-dashboard-card-icon">
+                        {% if link.icon == "search" %}
+                            {% svg 'search' class="user-dashboard-icon-svg" %}
+                        {% elif link.icon == "organisation" %}
+                            {% svg 'organisation' class="user-dashboard-icon-svg" %}
+                        {% elif link.icon == "messages" %}
+                            {% svg 'messages' class="user-dashboard-icon-svg" %}
+                        {% else %}
+                            {% svg 'dashboard' class="user-dashboard-icon-svg" %}
+                        {% endif %}
+                    </span>
+                </div>
+                <p>{{ link.description }}</p>
+            </a>
+        {% endfor %}
+    </div>
+
+    <section class="user-dashboard-panel user-dashboard-panel--teams">
+        <div class="user-dashboard-panel-header">
+            <h2>Recently Visited Teams</h2>
+        </div>
+        <div class="user-dashboard-team-grid">
+            {% for team in recent_teams %}
+                <a href="{{ team.detail_url }}" class="user-dashboard-card user-dashboard-card--team">
+                    <h3>{{ team.name }}</h3>
+                    <p>Manager: {{ team.manager }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="user-dashboard-panel user-dashboard-panel--activity">
+        <div class="user-dashboard-panel-header">
+            <h2>Recent Activities</h2>
+        </div>
+        <div class="dashboard-activity-list">
+            {% for activity in recent_activities %}
+                <article class="dashboard-activity-item">
+                    <div class="dashboard-activity-icon">+</div>
+                    <div>
+                        <h3>{{ activity.title }}</h3>
+                        <p>{{ activity.display_time }}</p>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+</section>
 {% endblock %}

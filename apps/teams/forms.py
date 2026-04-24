@@ -1,7 +1,6 @@
 from django import forms
 from .models import Team, User
 
-
 class TeamCreateForm(forms.ModelForm):
     class Meta:
         model = Team
@@ -14,6 +13,7 @@ class TeamCreateForm(forms.ModelForm):
             "team_wiki",
             "development_focus_areas",
             "key_skills_technologies",
+            "downstream_dependency",
         ]
         widgets = {
             "team_name": forms.TextInput(attrs={
@@ -24,6 +24,9 @@ class TeamCreateForm(forms.ModelForm):
                 "class": "form-select"
             }),
             "department": forms.Select(attrs={
+                "class": "form-select"
+            }),
+            "downstream_dependency": forms.Select(attrs={
                 "class": "form-select"
             }),
             "slack_channels": forms.Textarea(attrs={
@@ -50,7 +53,6 @@ class TeamCreateForm(forms.ModelForm):
                 "placeholder": "List skills and technologies"
             }),
         }
-
 
 class UserCreateForm(forms.ModelForm):
     password = forms.CharField(
