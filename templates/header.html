@@ -34,7 +34,9 @@
                 {% else %}
                     <div class="helpful-links">
                         <ul class="utility-links">
-                            <a href="{% url 'login' %}">Login</a>
+                            {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'admin-login' and request.resolver_match.url_name != 'register' and request.resolver_match.url_name != 'account-password-reset' and request.resolver_match.url_name != 'account-password-reset-done' and request.resolver_match.url_name != 'account-password-reset-confirm' and request.resolver_match.url_name != 'account-password-reset-complete' %}
+                                <li><a href="{% url 'login' %}">Login</a></li>
+                            {% endif %}
                             <li><a href="/help">Help</a></li>
                             <li><a href="/contact-support">Contact Support</a></li>
                         </ul>
