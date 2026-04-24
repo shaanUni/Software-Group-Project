@@ -1,78 +1,119 @@
+<!-- Authors: w2072520, w2112281  -->
+
 {% extends "base.html" %}
 {% load team_schedule_extras %}
 
 {% block title %}Schedule{% endblock %}
 
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pages/css/schedule.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
-        <div>
-            <h1 class="mb-1">Team Schedule</h1>
-            <p class="text-muted mb-0">Calendar for {{ current_team.team_name }}</p>
-        </div>
-        <a href="{% url 'meeting-create' %}" class="btn btn-primary">Schedule Meeting</a>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body d-flex justify-content-between align-items-center">
-            <a href="?month={{ prev_month }}&year={{ prev_year }}" class="btn btn-outline-secondary btn-sm">Previous</a>
-            <h2 class="h4 mb-0">{{ display_month|date:"F Y" }}</h2>
-            <a href="?month={{ next_month }}&year={{ next_year }}" class="btn btn-outline-secondary btn-sm">Next</a>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0">
-        <div class="card-body">
-            <div class="row text-center fw-semibold border-bottom pb-2 mb-3">
-                <div class="col">Mon</div>
-                <div class="col">Tue</div>
-                <div class="col">Wed</div>
-                <div class="col">Thu</div>
-                <div class="col">Fri</div>
-                <div class="col">Sat</div>
-                <div class="col">Sun</div>
-            </div>
-
-            {% for week in month_days %}
-            <div class="row g-3 mb-3">
-                {% for day in week %}
-                <div class="col">
-                    <div class="border rounded p-2 h-100 {% if day.month != display_month.month %}bg-light text-muted{% endif %}" style="min-height: 150px;">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <strong>{{ day.day }}</strong>
-                            {% if day.month == display_month.month %}
-                            <a href="{% url 'meeting-create' %}?date={{ day|date:'Y-m-d' }}" class="btn btn-sm btn-outline-primary">
-                                +
-                            </a>
-                            {% endif %}
+<div class="p-0">
+    <div class="calendar-layout">
+        <div class="calendar-layout-inner d-flex flex-row align-items-start">
+            <div class="calendar-layout-component rounded-component-design card flex-grow-1 border-0">
+                <div class="calendar-header border-0 mb-4">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">{{ display_month|date:"F Y" }}</h2>
+                        <div>
+                            <a href="?month={{ prev_month }}&year={{ prev_year }}" class="btn btn-outline-primary btn-sm">Previous</a>
+                            <a href="?month={{ next_month }}&year={{ next_year }}" class="btn btn-primary btn-sm">Next</a>
                         </div>
-
-                        {% with day_meetings=meetings_by_day|get_item:day %}
-                            {% if day_meetings %}
-                                {% for meeting in day_meetings %}
-                                <div class="mb-2 p-2 rounded bg-primary-subtle">
-                                    <div class="small fw-semibold">
-                                        <a href="{% url 'meeting-detail' meeting.meeting_id %}" class="text-decoration-none">
-                                            {{ meeting.meeting_time|time:"H:i" }} - {{ meeting.title }}
-                                        </a>
-                                    </div>
-                                    <div class="small text-muted">
-                                        With
-                                        {% if meeting.team_one == current_team %}
-                                            {{ meeting.team_two.team_name }}
-                                        {% else %}
-                                            {{ meeting.team_one.team_name }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
                     </div>
                 </div>
-                {% endfor %}
+            
+                <div class="calendar-content border-0">
+                    <div class="card-body">
+                        <div class="days row text-center fw-semibold pb-2 mb-2">
+                            <div class="col">Mon</div>
+                            <div class="col">Tue</div>
+                            <div class="col">Wed</div>
+                            <div class="col">Thu</div>
+                            <div class="col">Fri</div>
+                            <div class="col">Sat</div>
+                            <div class="col">Sun</div>
+                        </div>
+            
+                        {% for week in month_days %}
+                        <div class="row g-3 mb-3">
+                            {% for day in week %}
+                            <div class="cal-day col">
+                                {% with day_meetings=meetings_by_day|get_item:day %}
+                                <div class="cal-day_inner {% if day_meetings %} event-background {% endif %} bg-white rounded-no-shadow border rounded h-100 {% if day.month != display_month.month %}not-current-month{% endif %}" style="min-height: 100px;">
+                                    <div class="cal-day_date  {% if today == day %}today{% endif %}">
+                                        <strong>{{ day.day }}</strong>
+                                    </div>
+                                {% endwith %}
+            
+                                    {% with day_meetings=meetings_by_day|get_item:day %}
+                                        {% if day_meetings %}
+                                            {% for meeting in day_meetings %}
+                                                {% if meeting > 1 %}
+                                                <div class="event-card rounded-no-shadow mb-4">
+                                                    <a href="{% url 'scheduling:meeting-detail' meeting.meeting_id %}">
+                                                        <h3 class="text-white">{{ meeting.title }}</h3>
+                                                        <span class="meeting-time text-white">{{ meeting.meeting_time|time:"H:i" }}</span>
+                                                        <div class="small text-white">
+                                                            {% if meeting.team_one == current_team %}
+                                                            {{ meeting.team_two.team_name }}
+                                                            {% else %}
+                                                            {{ meeting.team_one.team_name }}
+                                                            {% endif %}
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                                {% else %}
+                                                    <div class="event-card rounded-no-shadow mb-4">
+                                                        <a href="{% url 'scheduling:meeting-detail' meeting.meeting_id %}">
+                                                            <h3 class="text-white">{{ meeting.title }}</h3>
+                                                            <span class="meeting-time text-white">{{ meeting.meeting_time|time:"H:i" }}</span>
+                                                        </a>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            {% endfor %}
+            <div>
+                <div class="calendar-upcoming-events rounded-component-design d-flex flex-column mb-4">
+                    <div class="calendar-upcoming-events-inner border-0">
+                        <div class="card-body">
+                            <h5 class="card-title">Upcoming Schedule</h5>
+                            <ul class="list-group list-group-flush">
+                                {% for meeting in upcoming_meetings %}
+                                    <li class="list-group-item event-card rounded-no-shadow mb-4">
+                                        <a href="{% url 'scheduling:meeting-detail' meeting.meeting_id %}" class="text-decoration-none">
+                                            <h3>{{ meeting.title }}</h3>
+                                            <span class="meeting-time">{{ meeting.meeting_time|time:"H:i" }}</span>
+                                            <div class="small">
+                                                {% if meeting.team_one == current_team %}
+                                                {{ meeting.team_two.team_name }}
+                                                {% else %}
+                                                {{ meeting.team_one.team_name }}
+                                                {% endif %}
+                                            </div>
+                                            <span class="event_date">
+                                                {{ meeting.meeting_date|date:"M d, Y" }}
+                                            </span>
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <a href="{% url 'scheduling:meeting-create' %}" class="btn btn-primary">+ Schedule Event</a>
+            </div>
         </div>
     </div>
 </div>

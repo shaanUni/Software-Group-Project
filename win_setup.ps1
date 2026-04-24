@@ -33,7 +33,8 @@ if ($MANAGE_PY) {
     Write-Host "🗄️ Running database migrations..."
     python $MANAGE_PY.FullName migrate
     Write-Host "`n Setup Complete!" -ForegroundColor Green
-    Write-Host "To start the server, run: python $($MANAGE_PY.FullName) runserver"
+    Write-Host "Starting server..."
+    python $($MANAGE_PY.FullName) runserver
 } else {
     Write-Host "Error: Could not find manage.py." -ForegroundColor Red
 }

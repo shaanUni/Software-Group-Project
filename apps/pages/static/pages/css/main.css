@@ -8,6 +8,22 @@ body {
     padding: 0;
 }
 
+/* Rounded Component Design */
+.rounded-component-design {
+    background: #FFFFFF;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+}
+
+.rounded-no-shadow {
+    border-radius: 10px !important;
+}
+
+/*  TEXT STYLING  */
+.text-primary-color {
+    color: #2837A3;
+}
+
 /* Hidden Class to use to hide elements when needed */
 .hidden {
     display: none;
@@ -31,7 +47,7 @@ ul li a:hover {
     text-decoration: underline;
 }
 
-
+/* BODY STYLING */
 body.site-body {
     font-family: "Instrument Sans", Arial, sans-serif;
     background: #f5f7fb;
@@ -184,15 +200,17 @@ body.site-body {
 .site-main {
     flex: 1;
     width: 100%;
-    padding: 24px 0 40px;
-    gap: 24px;
+    padding: 24px 24px 40px;
+    gap: 50px;
+    margin: 0 auto;
+    max-width: 1920px;
 }
 
 .content-container {
     width: 100%;
     max-width: 1920px;
     margin: 0 auto;
-    padding: 0 24px 0 0;
+    padding: 0;
 }
 
 .content-card {
@@ -1289,8 +1307,6 @@ footer.site-footer {
 /* SIDEBAR CSS */
 aside.sidebar {
     width: 300px;
-    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
 }
 
 aside.sidebar .sidebar-header {

@@ -1,3 +1,5 @@
+<!-- Authors: w2112281  -->
+
 {% extends "base.html" %}
 {% load static %}
 
@@ -8,40 +10,36 @@
 {% endblock %}
 
 {% block content %}
-<div class="container d-flex flex-row">
+<div class="d-flex flex-row align-items-start">
     <!--  Navigation template to modify in one place only  -->
     {% block sidebarNavigation %}
     {% include "./sidebar_navigation_messages.html" %}
     {% endblock %}
 
     <div class="messages-layout ps-5">
-        <div class="messages-layout-inner">
-
+        <div class="messages-layout-inner rounded-component-design">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="mb-1">{{ message.subject }}</h1>
-                    <p class="text-muted mb-0">
-                        {{ message.sender_team.team_name }} to {{ message.recipient_team.team_name }}
-                    </p>
+                    <h1 class="mb-1 text-primary-color">{{ message.subject }}</h1>
                 </div>
             </div>
 
             <div class="card border-0">
-                <div class="card-body ">
-                    <div class="mb-3">
+                <div class="card-body p-0">
+                    <div class="mb-3 text-primary-color">
                         <strong>From Team:</strong> {{ message.sender_team.team_name }}
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 text-primary-color">
                         <strong>To Team:</strong> {{ message.recipient_team.team_name }}
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 text-primary-color">
                         <strong>Sent By:</strong> {{ message.sent_by }}
                     </div>
-                    <div class="mb-3">
-                        <strong>Sent At:</strong> {{ message.created_at }}
+                    <div class="mb-3 text-primary-color">
+                        <strong>Sent On:</strong> {{ message.created_at|date:"d M Y" }} at {{ message.created_at|time:"H:i" }}
                     </div>
                     <hr>
-                    <div style="white-space: pre-wrap;">{{ message.body }}</div>
+                    <div class="text-primary-color">{{ message.body|linebreaksbr }}</div>
                 </div>
             </div>
         </div>

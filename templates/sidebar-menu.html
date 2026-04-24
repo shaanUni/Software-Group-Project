@@ -1,6 +1,6 @@
 <!-- Authors: w2112281 -->
 
-<aside class="sidebar bg-white">
+<aside class="sidebar rounded-component-design">
     <div class="sidebar-header">
         <h2>MENU</h2>
     </div>
@@ -52,7 +52,7 @@
                     </a>
                 </li>
                 <li class="nav-list-item">
-                    <a href="{% url 'team-schedule' %}" class="nav-list-link {% if request.resolver_match.url_name == 'team-schedule' %}active{% endif %}">
+                    <a href="{% url 'scheduling:team-schedule' %}" class="nav-list-link {% if request.resolver_match.app_name == 'scheduling' %}active{% endif %}">
                         <div class="nav-list-icon">
                             {% load svg %}
                             {% svg 'schedule' class="nav-list-icon-svg" %}
