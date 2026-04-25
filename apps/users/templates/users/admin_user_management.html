@@ -1,107 +1,525 @@
 {% extends "base.html" %}
+{% load user_extras %}
 
 {% block title %}User Management{% endblock %}
 
-{% block content %}
-<div class="teams-page">
-    <div class="teams-header">
-        <div>
-            <h1 class="teams-title">User Management</h1>
-            <p class="teams-subtitle">Assign users to teams, manage admin roles, and remove accounts.</p>
-        </div>
+{% block extra_css %}
+<style>
+    .uam-page {
+        padding: 0.75rem 0;
+    }
 
-        <div class="teams-actions">
-            <a href="{% url 'admin-dashboard' %}" class="btn btn-outline-primary">Back to Admin Dashboard</a>
-        </div>
+    .uam-title {
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: #1f2a3c;
+        margin-bottom: 1.25rem;
+    }
+
+    .uam-panel {
+        background: #ffffff;
+        border: 1px solid #dfe3ea;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .uam-filter-row {
+        display: grid;
+        grid-template-columns: 1fr 170px 170px 170px 110px;
+        gap: 0.9rem;
+        align-items: center;
+    }
+
+    .uam-filter-search-btn {
+        height: 48px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .uam-bulk-form {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        flex-wrap: wrap;
+    }
+
+    .uam-bulk-team {
+        min-width: 220px;
+    }
+
+    .uam-check-col {
+        width: 42px;
+        text-align: center;
+    }
+
+    .uam-row-check,
+    .uam-select-all {
+        width: 16px;
+        height: 16px;
+    }
+
+    .uam-search {
+        position: relative;
+    }
+
+    .uam-search-icon {
+        position: absolute;
+        left: 0.85rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #8b93a7;
+        font-size: 1.1rem;
+        pointer-events: none;
+    }
+
+    .uam-search input {
+        padding-left: 2.25rem;
+        height: 48px;
+        border-radius: 12px;
+        border-color: #ced4df;
+    }
+
+    .uam-filter-select {
+        height: 48px;
+        border-radius: 12px;
+        border-color: #ced4df;
+        color: #2c3548;
+    }
+
+    .uam-bulk-actions {
+        display: flex;
+        gap: 2.25rem;
+        color: #4a566d;
+        font-size: 1.08rem;
+        flex-wrap: wrap;
+    }
+
+    .uam-bulk-actions span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .uam-table-wrap {
+        background: #ffffff;
+        border: 1px solid #dfe3ea;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .uam-table {
+        margin-bottom: 0;
+        min-width: 1160px;
+    }
+
+    .uam-table thead th {
+        color: #1367c9;
+        font-weight: 600;
+        border-bottom-width: 1px;
+        padding: 0.9rem 0.85rem;
+    }
+
+    .uam-table tbody td {
+        vertical-align: middle;
+        padding: 1rem 0.85rem;
+    }
+
+    .uam-user-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+    }
+
+    .uam-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #dbe8f8;
+        color: #2f4f7f;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.92rem;
+        font-weight: 700;
+        flex: 0 0 34px;
+    }
+
+    .uam-name {
+        font-weight: 600;
+        color: #1f2a3c;
+    }
+
+    .uam-muted {
+        color: #687387;
+    }
+
+    .uam-role-badge {
+        display: inline-block;
+        background: #e9f0ff;
+        color: #135fcc;
+        font-size: 0.84rem;
+        font-weight: 600;
+        border-radius: 999px;
+        padding: 0.2rem 0.6rem;
+        margin: 0.12rem 0.12rem 0.12rem 0;
+    }
+
+    .uam-status {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 0.25rem 0.72rem;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .uam-status-active {
+        background: #dff6ea;
+        color: #187f54;
+    }
+
+    .uam-status-inactive {
+        background: #f2e2e4;
+        color: #9f2e39;
+    }
+
+    .uam-teams-cell {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.45rem;
+    }
+
+    .uam-team-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        max-width: 290px;
+    }
+
+    .uam-team-badge {
+        background: #eef4ff;
+        color: #1b4d9c;
+        border-radius: 999px;
+        padding: 0.22rem 0.62rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid #d6e3fa;
+    }
+
+    .uam-icon-btn {
+        width: 31px;
+        height: 31px;
+        border-radius: 8px;
+        border: 1px solid #d5dbe8;
+        background: #fff;
+        color: #1e3a8a;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    .uam-icon-btn:hover {
+        background: #f5f8ff;
+    }
+
+    .uam-icon-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .uam-view-btn { color: #2563eb; }
+    .uam-plus-btn { color: #0f9a61; }
+
+    .uam-actions-col {
+        min-width: 280px;
+    }
+
+    .uam-row-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-wrap: nowrap;
+    }
+
+    .uam-roles-dropdown,
+    .uam-team-picker {
+        position: relative;
+    }
+
+    .uam-toggle {
+        list-style: none;
+        border: 1px solid #cfd6e2;
+        background: #fff;
+        border-radius: 8px;
+        padding: 0.25rem 0.7rem;
+        font-size: 0.86rem;
+        color: #334155;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .uam-toggle::-webkit-details-marker {
+        display: none;
+    }
+
+    .uam-dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 20;
+        width: 210px;
+        border: 1px solid #d4d9e3;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        padding: 0.55rem 0.65rem;
+    }
+
+    .uam-roles-item,
+    .uam-team-item {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.88rem;
+        color: #334155;
+        margin: 0.32rem 0;
+    }
+
+    .uam-save-btn,
+    .uam-delete-btn {
+        font-size: 0.86rem;
+        font-weight: 600;
+    }
+
+    .uam-hidden-submit {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    @media (max-width: 1200px) {
+        .uam-filter-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="uam-page">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h1 class="uam-title mb-0">User Access Management</h1>
+        <a href="{% url 'admin-dashboard' %}" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+    </div>
+
+    <div class="uam-panel">
+        <form method="get" class="uam-filter-row">
+            <div class="uam-search">
+                <span class="uam-search-icon">&#128269;</span>
+                <input type="text" class="form-control" name="q" value="{{ filters.q }}" placeholder="Search for a user...">
+            </div>
+            <select class="form-select uam-filter-select" name="role">
+                <option value="">All Roles</option>
+                <option value="admin" {% if filters.role == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="staff" {% if filters.role == 'staff' %}selected{% endif %}>Staff</option>
+                <option value="member" {% if filters.role == 'member' %}selected{% endif %}>Member</option>
+            </select>
+            <select class="form-select uam-filter-select" name="team">
+                <option value="">All Teams</option>
+                {% for team in teams %}
+                <option value="{{ team.pk }}" {% if filters.team == team.pk|stringformat:'s' %}selected{% endif %}>{{ team.team_name|default:"Team" }}</option>
+                {% endfor %}
+            </select>
+            <select class="form-select uam-filter-select" name="status">
+                <option value="">All Status</option>
+                <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if filters.status == 'inactive' %}selected{% endif %}>Inactive</option>
+            </select>
+            <button type="submit" class="btn btn-primary uam-filter-search-btn">Search</button>
+        </form>
+    </div>
+
+    <div class="uam-panel">
+        <form method="post" id="bulk-form" class="uam-bulk-form">
+            {% csrf_token %}
+            <input type="hidden" name="q" value="{{ filters.q }}">
+            <input type="hidden" name="role" value="{{ filters.role }}">
+            <input type="hidden" name="team" value="{{ filters.team }}">
+            <input type="hidden" name="status" value="{{ filters.status }}">
+
+            <button type="submit" name="action" value="bulk_deactivate" class="btn btn-outline-secondary">Bulk Deactivate</button>
+
+            <select name="bulk_team_id" class="form-select uam-bulk-team">
+                <option value="">Assign selected to team...</option>
+                {% for team in teams %}
+                <option value="{{ team.pk }}">{{ team.team_name|default:"Team" }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" name="action" value="bulk_assign" class="btn btn-outline-secondary">Bulk Assign to Team</button>
+            <button type="submit" name="action" value="export_csv" class="btn btn-outline-secondary">Export List</button>
+        </form>
     </div>
 
     {% if users %}
-    <div class="teams-layout">
-        <div class="teams-table-card">
-            <div class="card-header-row">
-                <h2 class="section-title">All Users</h2>
-            </div>
-
-            <div class="table-responsive">
-                <table class="teams-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Team</th>
-                            <th>Roles</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for account in users %}
-                        <tr>
-                            <td class="fw-semibold">{{ account.username }}</td>
-                            <td>{{ account.get_full_name|default:account.username }}</td>
-                            <td>{{ account.email|default:"-" }}</td>
-                            <td>
-                                <form id="user-form-{{ account.pk }}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="action" value="update">
-                                    <input type="hidden" name="user_id" value="{{ account.pk }}">
-                                </form>
-
-                                <select name="team_id" class="form-select form-select-sm" form="user-form-{{ account.pk }}">
-                                        <option value="">No team</option>
-                                        {% for team in teams %}
-                                        <option value="{{ team.pk }}" {% if account.team_id == team.pk %}selected{% endif %}>
-                                            {% if team.team_name %}{{ team.team_name }}{% else %}Team {{ team.team_id }}{% endif %}
-                                        </option>
-                                        {% endfor %}
-                                </select>
-                            </td>
-                            <td>
-                                {% if request.user.is_superuser %}
-                                <div class="d-flex flex-column gap-1">
-                                    <label class="form-check-label">
-                                        <input type="checkbox" name="is_staff" class="form-check-input me-1" form="user-form-{{ account.pk }}" {% if account.is_staff %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
-                                        Staff
-                                    </label>
-                                    <label class="form-check-label">
-                                        <input type="checkbox" name="is_superuser" class="form-check-input me-1" form="user-form-{{ account.pk }}" {% if account.is_superuser %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
-                                        Superuser
-                                    </label>
-                                    <label class="form-check-label">
-                                        <input type="checkbox" name="is_active" class="form-check-input me-1" form="user-form-{{ account.pk }}" {% if account.is_active %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
-                                        Active
-                                    </label>
+    <div class="uam-table-wrap">
+        <div class="table-responsive">
+            <table class="table uam-table">
+                <thead>
+                    <tr>
+                        <th class="uam-check-col">
+                            <input type="checkbox" id="uam-select-all" class="uam-select-all" aria-label="Select all users">
+                        </th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Teams</th>
+                        <th>Status</th>
+                        <th class="uam-actions-col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for account in users %}
+                    <tr>
+                        <td class="uam-check-col">
+                            <input type="checkbox" name="selected_users" value="{{ account.pk }}" form="bulk-form" class="uam-row-check" aria-label="Select {{ account.username }}">
+                        </td>
+                        <td>
+                            <div class="uam-user-cell">
+                                <span class="uam-avatar">{{ account.username|slice:":1"|upper }}</span>
+                                <div>
+                                    <div class="uam-name">{{ account.get_full_name|default:account.username }}</div>
+                                    <div class="uam-muted">@{{ account.username }}</div>
                                 </div>
-                                {% else %}
-                                <span class="badge bg-secondary">Staff access only</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="table-actions flex-wrap">
-                                    <button type="submit" class="btn btn-sm btn-primary" form="user-form-{{ account.pk }}">Save</button>
+                            </div>
+                        </td>
+                        <td class="uam-muted">{{ account.email|default:"-" }}</td>
+                        <td>
+                            {% if account.is_staff %}
+                            <span class="uam-role-badge">Staff</span>
+                            {% endif %}
+                            {% if account.is_superuser %}
+                            <span class="uam-role-badge">Superuser</span>
+                            {% endif %}
+                            {% if account.is_active %}
+                            <span class="uam-role-badge">Active</span>
+                            {% endif %}
+                            {% if not account.is_staff and not account.is_superuser and not account.is_active %}
+                            <span class="uam-role-badge">Member</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form id="user-form-{{ account.pk }}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" name="user_id" value="{{ account.pk }}">
+                                <button type="submit" class="uam-hidden-submit" aria-hidden="true">Save user {{ account.username }}</button>
 
-                                {% if request.user.is_superuser and account.pk != request.user.pk %}
+                                <div class="uam-teams-cell">
+                                    <div class="uam-team-badges">
+                                        {% with assigned=user_teams|get_item:account.pk %}
+                                            {% if assigned %}
+                                                {% for assigned_team in assigned %}
+                                                <span class="uam-team-badge">{{ assigned_team.team_name|default:"Team" }}</span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="uam-muted">No teams</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+
+                                    <details class="uam-team-picker">
+                                        <summary class="uam-icon-btn uam-plus-btn" title="Assign teams" aria-label="Assign teams">&#10133;</summary>
+                                        <div class="uam-dropdown-menu">
+                                            {% for team in teams %}
+                                            <label class="uam-team-item">
+                                                <input
+                                                    type="checkbox"
+                                                    name="team_ids"
+                                                    value="{{ team.pk }}"
+                                                    {% if team in user_teams|get_item:account.pk %}checked{% endif %}
+                                                >
+                                                {{ team.team_name|default:"Team" }}
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                    </details>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            {% if account.is_active %}
+                            <span class="uam-status uam-status-active">Active</span>
+                            {% else %}
+                            <span class="uam-status uam-status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="uam-actions-col">
+                            <div class="uam-row-actions">
+                                <a class="uam-icon-btn uam-view-btn" href="{% url 'admin-user-detail' account.pk %}" title="View profile" aria-label="View profile">&#128065;</a>
+
+                                {% if request.user.is_superuser %}
+                                <details class="uam-roles-dropdown">
+                                    <summary class="uam-toggle">Roles</summary>
+                                    <div class="uam-dropdown-menu">
+                                        <label class="uam-roles-item">
+                                            <input type="checkbox" name="is_staff" form="user-form-{{ account.pk }}" {% if account.is_staff %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
+                                            Staff
+                                        </label>
+                                        <label class="uam-roles-item">
+                                            <input type="checkbox" name="is_superuser" form="user-form-{{ account.pk }}" {% if account.is_superuser %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
+                                            Superuser
+                                        </label>
+                                        <label class="uam-roles-item">
+                                            <input type="checkbox" name="is_active" form="user-form-{{ account.pk }}" {% if account.is_active %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
+                                            Active
+                                        </label>
+                                    </div>
+                                </details>
+
+                                <button type="submit" class="btn btn-sm btn-primary uam-save-btn" form="user-form-{{ account.pk }}">Save</button>
+
                                 <form method="post" class="d-inline" onsubmit="return confirm('Delete {{ account.username|escapejs }}? This cannot be undone.');">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="user_id" value="{{ account.pk }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger uam-delete-btn" {% if account.pk == request.user.pk %}disabled title="You cannot delete your own account"{% endif %}>Delete</button>
                                 </form>
+                                {% else %}
+                                <span class="uam-muted">No admin actions</span>
                                 {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
     {% else %}
-    <div class="empty-state">
-        <h2>No users found</h2>
-        <p>There are no users to manage yet.</p>
+    <div class="uam-panel">
+        <h2 class="h5 mb-2">No users found</h2>
+        <p class="mb-0 uam-muted">There are no users to manage yet.</p>
     </div>
     {% endif %}
 </div>
+<script>
+    (function () {
+        var selectAll = document.getElementById("uam-select-all");
+        if (!selectAll) {
+            return;
+        }
+        selectAll.addEventListener("change", function () {
+            var rowChecks = document.querySelectorAll(".uam-row-check");
+            rowChecks.forEach(function (checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+        });
+    })();
+</script>
 {% endblock %}

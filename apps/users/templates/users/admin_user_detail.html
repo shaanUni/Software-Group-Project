@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}User Detail{% endblock %}
+
+{% block content %}
+<div class="teams-page">
+    <div class="teams-header">
+        <div>
+            <h1 class="teams-title">User Detail</h1>
+            <p class="teams-subtitle">Profile and current team memberships.</p>
+        </div>
+        <div class="teams-actions">
+            <a href="{% url 'admin-user-management' %}" class="btn btn-outline-primary">Back to User Management</a>
+        </div>
+    </div>
+
+    <div class="teams-table-card p-4">
+        <div class="mb-3">
+            <strong>Username:</strong> {{ account.username }}
+        </div>
+        <div class="mb-3">
+            <strong>Name:</strong> {{ account.get_full_name|default:account.username }}
+        </div>
+        <div class="mb-3">
+            <strong>Email:</strong> {{ account.email|default:"-" }}
+        </div>
+        <div class="mb-3">
+            <strong>Roles:</strong>
+            {% if account.is_staff %}<span class="badge bg-primary me-1">Staff</span>{% endif %}
+            {% if account.is_superuser %}<span class="badge bg-danger me-1">Superuser</span>{% endif %}
+            {% if account.is_active %}<span class="badge bg-success me-1">Active</span>{% else %}<span class="badge bg-secondary me-1">Inactive</span>{% endif %}
+        </div>
+        <div>
+            <strong>Teams:</strong>
+            {% if teams %}
+                {% for team in teams %}
+                <span class="badge bg-info text-dark me-1">{{ team.team_name|default:"Team" }}</span>
+                {% endfor %}
+            {% else %}
+                <span>-</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
