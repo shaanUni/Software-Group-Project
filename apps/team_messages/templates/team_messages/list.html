@@ -18,11 +18,11 @@
 
     <div class="messages-layout ps-5">
         <div class="messages-layout-inner rounded-component-design">
-            <div class="card border-0">
+            <div class="card rounded-component-design border-0 p-3">
                 {% if inbox %}
                     <div class="messages-container">
                         {% for msg in inbox %}
-                            <div class="message-card {% if msg.count > 1 %} mb-4{% endif %}">
+                            <div class="message-card mb-4">
                                 <a href="{% url 'messaging:message-detail' msg.message_id %}">
                                     <h3>{{ msg.sender_team.team_name }}</h3>
                                     <h4 class="message-title">{{ msg.subject }}</h4>
