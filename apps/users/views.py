@@ -8,7 +8,7 @@ from .forms import RegisterForm, UserUpdateForm
 from apps.team_messages.models import TeamMessage
 from apps.team_schedule.models import TeamMeeting
 from apps.teams.models import Project, Team
-
+from apps.teams.models import AuditTrail
 
 def is_admin_user(user):
     return user.is_authenticated and user.is_staff
@@ -177,10 +177,13 @@ def admin_dashboard(request):
     active_projects = Project.objects.count()
     pending_issues = Team.objects.filter(team_leader__isnull=True).count()
     today = timezone.localdate()
+
     updates_today = (
         TeamMessage.objects.filter(created_at__date=today).count()
         + TeamMeeting.objects.filter(created_at__date=today).count()
     )
+
+    audit_entries = AuditTrail.objects.select_related("admin_user").order_by("-created_at")[:5]
 
     team_rows = [
         {
@@ -201,6 +204,7 @@ def admin_dashboard(request):
         }
         for team in teams
     ]
+
     if not team_rows:
         team_rows = [
             {
@@ -230,6 +234,7 @@ def admin_dashboard(request):
             "metric_cards": metric_cards,
             "team_rows": team_rows,
             "recent_activities": recent_activities[:3],
+            "audit_entries": audit_entries,
         },
     )
 

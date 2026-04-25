@@ -45,7 +45,14 @@ class RegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+    def clean_email(self):
+        email = self.cleaned_data["email"].lower()
 
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+
+        return email
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
@@ -62,6 +69,7 @@ class BaseSkyLoginForm(AuthenticationForm):
 
     def __init__(self, request=None, *args, **kwargs):
         super().__init__(request=request, *args, **kwargs)
+
         self.fields["username"].label = self.username_label
         self.fields["username"].widget.attrs.update(
             {
@@ -70,6 +78,7 @@ class BaseSkyLoginForm(AuthenticationForm):
                 "autofocus": True,
             }
         )
+
         self.fields["password"].label = "Password"
         self.fields["password"].widget.attrs.update(
             {
@@ -77,7 +86,23 @@ class BaseSkyLoginForm(AuthenticationForm):
                 "placeholder": self.password_placeholder,
             }
         )
-        self.fields["remember_me"].widget.attrs.update({"class": "auth-checkbox-input"})
+
+        self.fields["remember_me"].widget.attrs.update(
+            {
+                "class": "auth-checkbox-input",
+            }
+        )
+
+    def clean(self):
+        login_value = self.cleaned_data.get("username")
+
+        if login_value:
+            user = User.objects.filter(email__iexact=login_value).first()
+
+            if user:
+                self.cleaned_data["username"] = user.get_username()
+
+        return super().clean()
 
 
 class MemberLoginForm(BaseSkyLoginForm):
@@ -90,7 +115,15 @@ class AdminLoginForm(BaseSkyLoginForm):
     username_label = "Admin ID"
     username_placeholder = "Enter your admin ID"
     password_placeholder = "#####"
+   
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
 
+        if not user.is_staff:
+            raise forms.ValidationError(
+                "This account does not have admin access.",
+                code="not_admin",
+            )
 
 class SkyPasswordResetForm(PasswordResetForm):
     def __init__(self, *args, **kwargs):

@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from .forms import TeamCreateForm, UserCreateForm
 from .models import Team
-
+from .audit import log_audit_event
 
 def is_superadmin(user):
     return user.is_authenticated and user.is_superuser
@@ -34,7 +34,14 @@ def superadmin_team_create(request):
     if request.method == "POST":
         form = TeamCreateForm(request.POST)
         if form.is_valid():
-            form.save()
+            team = form.save()
+
+            log_audit_event(
+                user=request.user,
+                action="CREATE",
+                obj=team,
+                description=f"Created team '{team}'.",
+            )
             messages.success(request, "Team created successfully.")
             return redirect("team-list")
     else:
@@ -69,8 +76,15 @@ def team_edit_view(request, pk):
 
     if request.method == "POST":
         form = TeamCreateForm(request.POST, instance=team)
+        old_name = str(team)
         if form.is_valid():
-            form.save()
+            updated_team = form.save()
+            log_audit_event(
+                user=request.user,
+                action="UPDATE",
+                obj=updated_team,
+                description=f"Updated team '{old_name}' to '{updated_team}'.",
+            )
             messages.success(request, "Team updated successfully.")
             return redirect("team-list")
     else:
@@ -96,7 +110,13 @@ def user_create_view(request):
     if request.method == "POST":
         form = UserCreateForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_user = form.save()
+            log_audit_event(
+                user=request.user,
+                action="CREATE",
+                obj=new_user,
+                description=f"Created user '{new_user}'.",
+            )
             messages.success(request, "User created successfully.")
             return redirect("user-create")
     else:

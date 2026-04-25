@@ -58,15 +58,31 @@
             </div>
 
             <div class="dashboard-activity-list">
-                {% for activity in recent_activities %}
+                {% if audit_entries %}
+                    {% for entry in audit_entries %}
+                        <article class="dashboard-activity-item">
+                            <div class="dashboard-activity-icon">+</div>
+                            <div>
+                                <h3>{{ entry.action }} {{ entry.model_name }}</h3>
+                                <p>{{ entry.description }}</p>
+                                <p>
+                                    {{ entry.created_at|date:"d M Y H:i" }}
+                                    {% if entry.admin_user %}
+                                        by {{ entry.admin_user }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
                     <article class="dashboard-activity-item">
-                        <div class="dashboard-activity-icon">+</div>
+                        <div class="dashboard-activity-icon">-</div>
                         <div>
-                            <h3>{{ activity.title }}</h3>
-                            <p>{{ activity.display_time }}</p>
+                            <h3>No recent audit activity</h3>
+                            <p>No admin changes have been logged yet.</p>
                         </div>
                     </article>
-                {% endfor %}
+                {% endif %}
             </div>
         </section>
     </div>
