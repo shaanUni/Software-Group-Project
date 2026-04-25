@@ -12,7 +12,7 @@
                 {% if user.is_authenticated %}
                     <div class="search-bar">
                         <label class="hidden" for="search">Search on site</label>
-                        <form action='/search' method='get' class="search-bar-form">
+                        <form action="{% url 'team-list' %}" method="get" class="search-bar-form">
                             <input id="search" name="q" type="text" placeholder="Search teams, dpts, or managers" class="search-input">
                             <button class="button">
                                 {% load svg %}
