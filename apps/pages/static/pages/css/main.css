@@ -21,12 +21,27 @@ body {
 
 /*  TEXT STYLING  */
 .text-primary-color {
-    color: #2837A3;
+    color: #2837A3 !important;
 }
 
 /* Hidden Class to use to hide elements when needed */
 .hidden {
     display: none;
+}
+
+/*  FORM STYLING  */
+.form-control {
+    color: #999 !important;
+}
+
+.form-select:invalid,
+.form-select option[value=""] {
+    color: #999;
+}
+
+.form-select,
+.form-control {
+    border-color: #2837A3 !important;
 }
 
 /* UL GLOBAL STYLING */
@@ -108,6 +123,62 @@ body.site-body {
     align-items: center;
     justify-content: space-between;
     gap: 24px;
+}
+
+header.site-header .header-inner .header-row .profile-section .notifications-section .notification-link .notification-icon path {
+    transition: all 0.3s ease-in-out;
+}
+
+header.site-header .header-inner .header-row .profile-section .notifications-section .notification-link:hover .notification-icon path {
+    fill: #2837A3;
+    color: #fff;
+    stroke: #fff;
+}
+
+header.site-header .header-inner .header-row .profile-section .user-section .user-label {
+    color: #2837A3;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+header.site-header .header-inner .header-row .profile-section .dropdow-section .dropdown-section-toggle {
+    /*cursor: pointer;*/
+}
+
+header.site-header .header-inner .header-row .profile-section .dropdow-section .dropdown-section-toggle.active .dropDown-icon {
+    color: #2837A3;
+    transition: color 0.3s ease-in-out;
+    transform: rotate(180deg);
+}
+
+header.site-header .header-inner .header-row .profile-section .dropdow-section .dropdown-section-toggle:hover .dropDown-icon path {
+    stroke: #0d6efd;
+    transition: color 0.3s ease-in-out;
+}
+
+header.site-header .header-inner .header-row .profile-section .dropdow-section .dropdown-section-toggle + .dropdown-menu.active {
+    display: block;
+    position: absolute;
+    right: 5px;
+    top: 60px;
+    padding: 40px 30px;
+    border: unset;
+    width: 300px;
+    box-shadow: 4px 4px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown-menu-item {
+    text-decoration: none;
+    color: #2837A3;
+    font-size: 18px;
+    font-weight: 400;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.dropdown-menu-item:hover {
+    color: #007BFF;
+    transition: color 0.3s ease-in-out;
 }
 
 .logo-section {

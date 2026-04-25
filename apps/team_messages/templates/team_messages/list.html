@@ -22,7 +22,7 @@
                 {% if inbox %}
                     <div class="messages-container">
                         {% for msg in inbox %}
-                            <div class="message-card mb-4">
+                            <div class="message-card {% if msg.count > 1 %} mb-4{% endif %}">
                                 <a href="{% url 'messaging:message-detail' msg.message_id %}">
                                     <h3>{{ msg.sender_team.team_name }}</h3>
                                     <h4 class="message-title">{{ msg.subject }}</h4>

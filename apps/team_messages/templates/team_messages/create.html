@@ -18,43 +18,43 @@
     {% endblock %}
 
     <div class="messages-layout ps-5">
-        <div class="messages-layout-inner rounded-component-design">
+        <div class="messages-layout-inner rounded-component-design p-3">
             <div class="row ">
             <div class="">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h1 class="mb-1">New Message</h1>
-                        <p class="text-muted mb-0">Send a message from {{ sender_team.team_name }}</p>
+                        <h1 class="mb-1  text-primary-color">New Message</h1>
+                        <p class="text-muted mb-0  text-primary-color">Send a message from {{ sender_team.team_name }}</p>
                     </div>
                     <a href="{% url 'messaging:message-list' %}" class="btn btn-outline-primary">Back to Messages</a>
                 </div>
 
                 <div class="card border-0">
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <form method="post">
                             {% csrf_token %}
 
                             <div class="mb-3">
-                                <label class="form-label">Recipient Team</label>
+                                <label for="id_recipient_team" class="form-label text-primary-color">Recipient Team</label>
                                 {{ form.recipient_team }}
                                 {% if form.recipient_team.errors %}
-                                <div class="text-danger small mt-1">{{ form.recipient_team.errors }}</div>
+                                    <div class="text-danger small mt-1 text-primary-color">{{ form.recipient_team.errors }}</div>
                                 {% endif %}
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Subject</label>
+                                <label for="id_subject" class="form-label text-primary-color">Subject</label>
                                 {{ form.subject }}
                                 {% if form.subject.errors %}
-                                <div class="text-danger small mt-1">{{ form.subject.errors }}</div>
+                                    <div class="text-danger small mt-1 text-primary-color">{{ form.subject.errors }}</div>
                                 {% endif %}
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Message</label>
+                                <label for="id_body" class="form-label text-primary-color">Message</label>
                                 {{ form.body }}
                                 {% if form.body.errors %}
-                                <div class="text-danger small mt-1">{{ form.body.errors }}</div>
+                                    <div class="text-danger small mt-1 text-primary-color">{{ form.body.errors }}</div>
                                 {% endif %}
                             </div>
 
