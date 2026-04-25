@@ -20,15 +20,35 @@
                             </button>
                         </form>
                     </div>
-                    <div class="profile-section">
-                        <div class="nav-left">
-                            <span class="user-label">Logged in as: {{ user.username }}</span>
+                    <div class="profile-section d-flex align-items-center">
+                        <div class="notifications-section pe-3">
+                            <a href="{% url 'messaging:message-list' %}" class="notification-link">
+                                {% load svg %}
+                                {% svg 'notification' class="notification-icon" %}
+                            </a>
                         </div>
-                        <div class="nav-right">
-                            <form action="{% url 'logout' %}" method="post" class="logout-form">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-dark">Logout</button>
-                            </form>
+
+                        <div class="user-section pe-3">
+                            {% if user.first_name and user.last_name %}
+                                <span class="user-label">{{ user.first_name }} {{ user.last_name }}</span>
+                            {% else %}
+                                <span class="user-label">{{ user.username }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="dropdow-section">
+                            <div class="dropdown-section-toggle" data-bs-toggle="dropdown">
+                                {% load svg %}
+                                {% svg 'arrow_down' class="dropDown-icon" %}
+                            </div>
+                            <div class="dropdown-menu rounded-component-design">
+                                <a href="{% url 'user-dashboard' %}" class="dropdown-menu-item">Dashboard</a>
+                                <a href="{% url 'profile' %}" class="dropdown-menu-item">Profile</a>
+                                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-primary">Logout</button>
+                                </form>
+                            </div>
+
                         </div>
                     </div>
                 {% else %}

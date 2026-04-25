@@ -61,6 +61,11 @@
     border: 1px solid transparent;
 }
 
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:last-child,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card:last-child {
+    margin-bottom: 0 !important;
+}
+
 .calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card h3,
 .calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card .meeting-time,
 .calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card .small,

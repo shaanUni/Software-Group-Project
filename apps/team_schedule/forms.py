@@ -27,7 +27,7 @@ class TeamMeetingForm(forms.ModelForm):
             "notes": forms.Textarea(attrs={
                 "class": "form-control",
                 "rows": 4,
-                "placeholder": "Optional notes"
+                "placeholder": "Add event notes here"
             }),
         }
 
@@ -36,6 +36,10 @@ class TeamMeetingForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         current_team = kwargs.pop("current_team", None)
         super().__init__(*args, **kwargs)
+
+        # Set first option to "Select a team..." to help user
+        # understand the purpose of the dropdown
+        self.fields["team_two"].empty_label = "Select a team..."
 
         # Set the minimum date in the HTML calendar picker to today
         today = date.today().isoformat()
