@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
+from django.db.models import Q
 
 from .forms import TeamCreateForm, UserCreateForm
 from .models import Team
@@ -13,7 +14,18 @@ def is_superadmin(user):
 @login_required
 def team_list(request):
     teams = Team.objects.select_related("team_leader", "department")
-    return render(request, "teams/list.html", {"teams": teams})
+    query = request.GET.get('q', '').strip()
+    
+    if query:
+        teams = teams.filter(
+            Q(team_name__icontains=query) |
+            Q(department__department_name__icontains=query) |
+            Q(team_leader__username__icontains=query) |
+            Q(team_leader__first_name__icontains=query) |
+            Q(team_leader__last_name__icontains=query)
+        )
+    
+    return render(request, "teams/list.html", {"teams": teams, "query": query})
 
 
 @login_required
