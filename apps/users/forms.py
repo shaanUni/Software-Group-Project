@@ -1,3 +1,5 @@
+"""Authors: w2143865"""
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
@@ -109,6 +111,15 @@ class MemberLoginForm(BaseSkyLoginForm):
     username_label = "Email Address"
     username_placeholder = "example@sky.com"
     password_placeholder = "#####"
+
+    def confirm_login_allowed(self, user):
+        super().confirm_login_allowed(user)
+
+        if user.is_staff:
+            raise forms.ValidationError(
+                "Use the admin login page for this account.",
+                code="admin_account",
+            )
 
 
 class AdminLoginForm(BaseSkyLoginForm):
