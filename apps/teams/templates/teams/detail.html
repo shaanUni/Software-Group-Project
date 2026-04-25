@@ -12,10 +12,12 @@
 
         <div class="d-flex gap-2">
             <a href="{% url 'team-list' %}" class="btn btn-outline-secondary">Back to Teams</a>
-            {% if user.team and user.team.team_id != team.team_id %}
+            {% if user.team and user.team.team_id == team.team_id %}
+                <a href="{% url 'messaging:message-create' %}" class="btn btn-outline-primary">Contact Team</a>
+            {% else %}
                 <a href="{% url 'messaging:message-create-for-team' team.team_id %}" class="btn btn-outline-primary">Contact Team</a>
-                <a href="{% url 'scheduling:meeting-create' %}?date=" class="btn btn-outline-primary">Schedule With Team</a>
             {% endif %}
+            <a href="{% url 'scheduling:meeting-create' %}?date=" class="btn btn-outline-primary">Schedule With Team</a>
             {% if user.is_superuser %}
                 <a href="{% url 'team-edit' team.team_id %}" class="btn btn-primary">Edit Team</a>
             {% endif %}
