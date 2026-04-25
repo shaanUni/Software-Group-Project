@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 import csv
 
@@ -86,6 +86,9 @@ def _supports_additional_teams(User):
 
 def _filtered_users_queryset(User, params):
     query = (params.get("q") or "").strip()
+    role = (params.get("role") or "").strip()
+    team = (params.get("team") or "").strip()
+    status = (params.get("status") or "").strip()
     users = User.objects.select_related("team").order_by("username")
 
     if _supports_additional_teams(User):
@@ -99,7 +102,30 @@ def _filtered_users_queryset(User, params):
             | Q(email__icontains=query)
         )
 
-    filters = {"q": query}
+    if role == "admin":
+        users = users.filter(is_superuser=True)
+    elif role == "staff":
+        users = users.filter(is_staff=True, is_superuser=False)
+    elif role == "member":
+        users = users.filter(is_staff=False, is_superuser=False)
+
+    if status == "active":
+        users = users.filter(is_active=True)
+    elif status == "inactive":
+        users = users.filter(is_active=False)
+
+    if team.isdigit():
+        if _supports_additional_teams(User):
+            users = users.filter(Q(team_id=int(team)) | Q(additional_teams__team_id=int(team))).distinct()
+        else:
+            users = users.filter(team_id=int(team))
+
+    filters = {
+        "q": query,
+        "role": role,
+        "team": team,
+        "status": status,
+    }
     return users, filters
 
 
@@ -356,9 +382,48 @@ def admin_user_management(request):
             return redirect("admin-user-management")
 
         if action == "update":
-            team_id = request.POST.get("team_id")
-            target_user.team = Team.objects.filter(pk=team_id).first() if team_id else None
+            selected_team_ids = request.POST.getlist("team_ids")
+            if not selected_team_ids:
+                single_team_id = request.POST.get("team_id")
+                if single_team_id:
+                    selected_team_ids = [single_team_id]
+
+            selected_teams_by_id = {
+                str(team.pk): team for team in Team.objects.filter(pk__in=selected_team_ids)
+            }
+            selected_teams = [
+                selected_teams_by_id[team_id]
+                for team_id in selected_team_ids
+                if team_id in selected_teams_by_id
+            ]
+
+            target_user.team = selected_teams[0] if selected_teams else None
             target_user.save(update_fields=["team"])
+            if has_additional_teams:
+                target_user.additional_teams.set(selected_teams)
+
+            if request.user.is_superuser:
+                if target_user.pk == request.user.pk:
+                    target_user.is_staff = True
+                    target_user.is_superuser = True
+                    target_user.is_active = True
+                else:
+                    target_user.is_staff = request.POST.get("is_staff") == "on"
+                    target_user.is_superuser = request.POST.get("is_superuser") == "on"
+                    target_user.is_active = request.POST.get("is_active") == "on"
+                target_user.save(update_fields=["is_staff", "is_superuser", "is_active"])
+
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse(
+                    {
+                        "ok": True,
+                        "teams": [
+                            {"id": team.pk, "name": team.team_name or "Team"}
+                            for team in selected_teams
+                        ],
+                    }
+                )
+
             messages.success(request, f"Updated user {target_user.username}.")
             return redirect("admin-user-management")
 
@@ -367,6 +432,14 @@ def admin_user_management(request):
 
     users_qs, filters = _filtered_users_queryset(User, request.GET)
     users = list(users_qs)
+    for account in users:
+        assigned = []
+        if has_additional_teams:
+            assigned = list(account.additional_teams.all())
+        if account.team and all(team.pk != account.team.pk for team in assigned):
+            assigned.insert(0, account.team)
+        account.assigned_teams = assigned
+
     return render(
         request,
         "users/admin_user_management.html",
@@ -374,6 +447,30 @@ def admin_user_management(request):
             "users": users,
             "teams": teams,
             "filters": filters,
+        },
+    )
+
+
+@user_passes_test(is_admin_user, login_url="/login/")
+def admin_user_detail(request, user_id):
+    User = get_user_model()
+    account_qs = User.objects.select_related("team")
+    if _supports_additional_teams(User):
+        account_qs = account_qs.prefetch_related("additional_teams")
+    account = get_object_or_404(account_qs, pk=user_id)
+
+    teams = []
+    if _supports_additional_teams(User):
+        teams = list(account.additional_teams.all())
+    if account.team and account.team not in teams:
+        teams.insert(0, account.team)
+
+    return render(
+        request,
+        "users/admin_user_detail.html",
+        {
+            "account": account,
+            "teams": teams,
         },
     )
 
