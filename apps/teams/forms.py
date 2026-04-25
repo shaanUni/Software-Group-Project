@@ -1,5 +1,5 @@
 from django import forms
-from .models import Team, User
+from .models import Team, User, Department, Project
 
 class TeamCreateForm(forms.ModelForm):
     class Meta:
@@ -100,3 +100,42 @@ class UserCreateForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+    
+
+
+class DepartmentCreateForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ["department_name", "department_head"]
+        widgets = {
+            "department_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter department name",
+            }),
+            "department_head": forms.Select(attrs={
+                "class": "form-select",
+            }),
+        }
+
+
+class ProjectCreateForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ["project_name", "team", "codebase", "jira_link"]
+        widgets = {
+            "project_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter project name",
+            }),
+            "team": forms.Select(attrs={
+                "class": "form-select",
+            }),
+            "codebase": forms.URLInput(attrs={
+                "class": "form-control",
+                "placeholder": "https://github.com/...",
+            }),
+            "jira_link": forms.URLInput(attrs={
+                "class": "form-control",
+                "placeholder": "https://...",
+            }),
+        }
