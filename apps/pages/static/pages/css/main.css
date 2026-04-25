@@ -1443,7 +1443,7 @@ aside.sidebar .nav-links .nav-list .nav-list-item a.active .nav-list-icon-svg pa
 }
 
 aside.sidebar .nav-links .nav-list .nav-list-item .nav-list-icon {
-    width: 24px;
+    width: auto;
     height: 24px;
     object-fit: contain;
 }
