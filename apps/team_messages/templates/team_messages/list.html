@@ -1,21 +1,23 @@
+<!-- Authors: w2112281  -->
+
 {% extends "base.html" %}
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'assets/css/messages.css' %}">
+<link rel="stylesheet" href="{% static 'pages/css/messages.css' %}">
 {% endblock %}
 
 {% block title %}Messages Inbox{% endblock %}
 
 {% block content %}
-<div class="container d-flex flex-row">
+<div class="d-flex flex-row align-items-start">
     <!--  Navigation template to modify in one place only  -->
     {% block sidebarNavigation %}
         {% include "./sidebar_navigation_messages.html" %}
     {% endblock %}
 
     <div class="messages-layout ps-5">
-        <div class="messages-layout-inner">
+        <div class="messages-layout-inner rounded-component-design">
             <div class="card border-0">
                 {% if inbox %}
                     <div class="messages-container">

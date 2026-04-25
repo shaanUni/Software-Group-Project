@@ -23,13 +23,13 @@
             {% include "header.html" %}
         {% endblock %}
 
-        <main class="site-main px-4 d-flex">
+        <main class="site-main d-flex align-items-start  justify-content-start">
             {% if user.is_authenticated %}
                 {% block sidebarMenu %}
                     {% include "sidebar-menu.html" %}
                 {% endblock %}
             {% endif %}
-            <div class="content-container">
+            <div class="content-container flex-grow-1">
                     {% block content %}{% endblock %}
             </div>
         </main>
