@@ -29,7 +29,9 @@
 
     <section class="user-dashboard-panel user-dashboard-panel--teams">
         <div class="user-dashboard-panel-header">
-            <h2>Recently Visited Teams</h2>
+            {%{% comment "" %} I am changing this to say quick view teams. Recently visited was a little misleading, as 
+            it is just pulling in 3 teams, we don't actually track recently visited. {% endcomment %}%}
+            <h2>Quick View Teams</h2>
         </div>
         <div class="user-dashboard-team-grid">
             {% for team in recent_teams %}
@@ -43,18 +45,30 @@
 
     <section class="user-dashboard-panel user-dashboard-panel--activity">
         <div class="user-dashboard-panel-header">
-            <h2>Recent Activities</h2>
+            <h2>Recent Updates</h2>
         </div>
+    
         <div class="dashboard-activity-list">
-            {% for activity in recent_activities %}
+            {% if recent_updates %}
+                {% for update in recent_updates %}
+                    <article class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon">+</div>
+                        <div>
+                            <h3>{{ update.action }} {{ update.model_name }}</h3>
+                            <p>{{ update.description }}</p>
+                            <p>{{ update.created_at|date:"d M Y H:i" }}</p>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
                 <article class="dashboard-activity-item">
-                    <div class="dashboard-activity-icon">+</div>
+                    <div class="dashboard-activity-icon">-</div>
                     <div>
-                        <h3>{{ activity.title }}</h3>
-                        <p>{{ activity.display_time }}</p>
+                        <h3>No recent updates</h3>
+                        <p>No admin changes have been logged yet.</p>
                     </div>
                 </article>
-            {% endfor %}
+            {% endif %}
         </div>
     </section>
 </section>

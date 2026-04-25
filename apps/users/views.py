@@ -129,9 +129,7 @@ def user_dashboard(request):
     if not recent_teams:
         recent_teams = [{"name": "-", "manager": "-", "detail_url": "#"}]
 
-    recent_activities = _build_user_activities(request.user, limit=4)
-    if not recent_activities:
-        recent_activities = [{"title": "-", "display_time": "-"}]
+    recent_updates = AuditTrail.objects.select_related("admin_user").order_by("-created_at")[:4]
 
     quick_links = [
         {
@@ -160,7 +158,7 @@ def user_dashboard(request):
         {
             "quick_links": quick_links,
             "recent_teams": recent_teams,
-            "recent_activities": recent_activities,
+            "recent_updates": recent_updates,
         },
     )
 
