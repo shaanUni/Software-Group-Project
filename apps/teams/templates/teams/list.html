@@ -62,7 +62,7 @@
                                     </a>
                             
                                     {% if user.team and user.team.team_id != team.team_id %}
-                                    <a href="{% url 'message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'messaging:message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
                                         Contact
                                     </a>
                                     {% endif %}
