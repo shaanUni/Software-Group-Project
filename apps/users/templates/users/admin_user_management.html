@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="teams-page">
+    <div class="teams-header">
+        <div>
+            <h1 class="teams-title">User Management</h1>
+            <p class="teams-subtitle">Assign users to teams, manage admin roles, and remove accounts.</p>
+        </div>
+
+        <div class="teams-actions">
+            <a href="{% url 'admin-dashboard' %}" class="btn btn-outline-primary">Back to Admin Dashboard</a>
+        </div>
+    </div>
+
+    {% if users %}
+    <div class="teams-layout">
+        <div class="teams-table-card">
+            <div class="card-header-row">
+                <h2 class="section-title">All Users</h2>
+            </div>
+
+            <div class="table-responsive">
+                <table class="teams-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Team</th>
+                            <th>Roles</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in users %}
+                        <tr>
+                            <td class="fw-semibold">{{ account.username }}</td>
+                            <td>{{ account.get_full_name|default:account.username }}</td>
+                            <td>{{ account.email|default:"-" }}</td>
+                            <td>
+                                <form id="user-form-{{ account.pk }}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="update">
+                                    <input type="hidden" name="user_id" value="{{ account.pk }}">
+                                </form>
+
+                                <select name="team_id" class="form-select form-select-sm" form="user-form-{{ account.pk }}">
+                                        <option value="">No team</option>
+                                        {% for team in teams %}
+                                        <option value="{{ team.pk }}" {% if account.team_id == team.pk %}selected{% endif %}>
+                                            {% if team.team_name %}{{ team.team_name }}{% else %}Team {{ team.team_id }}{% endif %}
+                                        </option>
+                                        {% endfor %}
+                                </select>
+                            </td>
+                            <td>
+                                {% if request.user.is_superuser %}
+                                <div class="d-flex flex-column gap-1">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" name="is_staff" class="form-check-input me-1" form="user-form-{{ account.pk }}" {% if account.is_staff %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
+                                        Staff
+                                    </label>
+                                    <label class="form-check-label">
+                                        <input type="checkbox" name="is_superuser" class="form-check-input me-1" form="user-form-{{ account.pk }}" {% if account.is_superuser %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
+                                        Superuser
+                                    </label>
+                                    <label class="form-check-label">
+                                        <input type="checkbox" name="is_active" class="form-check-input me-1" form="user-form-{{ account.pk }}" {% if account.is_active %}checked{% endif %} {% if account.pk == request.user.pk %}disabled{% endif %}>
+                                        Active
+                                    </label>
+                                </div>
+                                {% else %}
+                                <span class="badge bg-secondary">Staff access only</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="table-actions flex-wrap">
+                                    <button type="submit" class="btn btn-sm btn-primary" form="user-form-{{ account.pk }}">Save</button>
+
+                                {% if request.user.is_superuser and account.pk != request.user.pk %}
+                                <form method="post" class="d-inline" onsubmit="return confirm('Delete {{ account.username|escapejs }}? This cannot be undone.');">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="user_id" value="{{ account.pk }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                                {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h2>No users found</h2>
+        <p>There are no users to manage yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
