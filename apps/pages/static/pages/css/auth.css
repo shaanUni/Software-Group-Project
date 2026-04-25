@@ -284,6 +284,11 @@
 
 .auth-footer-link {
     text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .auth-steps h2 {
