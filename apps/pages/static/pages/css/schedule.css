@@ -1,0 +1,123 @@
+/*  Authors: w2112281  */
+/*  Description: CSS styles for the schedule event section of the application */
+
+.calendar-layout .calendar-layout-component {
+    width: 100%;
+}
+
+.calendar-layout .calendar-layout-inner {
+    gap: 50px;
+
+}
+
+.calendar-layout .calendar-layout-component .calendar-header {
+
+}
+
+.calendar-layout .calendar-layout-component .calendar-header  h2{
+    font-size: 26px;
+    color: #2837A3;
+    font-weight: bold;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .days .col {
+    font-size: 18px;
+    color: #2837A3;
+    font-weight: 400;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner {
+    border-color: #2837A3 !important;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .cal-day_date {
+    color: #2837A3;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .cal-day_date.today {
+    text-decoration: underline;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner.not-current-month {
+    background-color: #f9fafb !important;
+    border-color: #131D60 !important;
+    opacity: 0.3;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner.event-background {
+    background-color: #2837A3 !important;
+}
+
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner.event-background .cal-day_date {
+    color: #FFFFFF;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card {
+    background-color: #2837A3;
+    padding: 10px;
+    border: 1px solid transparent;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:last-child,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card:last-child {
+    margin-bottom: 0 !important;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card h3,
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card .meeting-time,
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card .small,
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card .event_date,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card h3,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card .meeting-time,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card .small{
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card h3,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card h3 {
+    margin-bottom: 0;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card a,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card a {
+    text-decoration: none;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:hover,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card:hover {
+    background-color: #fff;
+    cursor: pointer;
+    border: 1px solid #2837A3;
+}
+
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:hover h3,
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:hover .meeting-time,
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:hover .small,
+.calendar-upcoming-events .calendar-upcoming-events-inner .list-group .event-card:hover .event_date,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card:hover h3,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card:hover .meeting-time,
+.calendar-layout .calendar-layout-component .calendar-content .row .cal-day .cal-day_inner .event-card:hover .small{
+    color: #2837A3 !important;
+}
+
+.calendar-layout .calendar-layout-inner .calendar-upcoming-events {
+    min-width: 300px;
+    height: auto;
+}
+
+.calendar-layout .calendar-layout-inner .calendar-upcoming-events h5 {
+    font-size: 22px;
+    color: #2837A3;
+    font-weight: 400;
+}
+
+.schedule-layout .schedule-layout-inner {
+    padding: 35px;
+}
+
+

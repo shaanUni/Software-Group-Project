@@ -1,3 +1,5 @@
+# Authors: w2072520, w2112281
+
 """
 URL configuration for config project.
 
@@ -23,6 +25,6 @@ urlpatterns = [
     path("mockups/", include("apps.mockups.urls")),
     path("", include("apps.users.urls")),
     path("", include("apps.teams.urls")),
-    path("", include("apps.team_messages.urls")),
-    path("", include("apps.team_schedule.urls")),
+    path("messages/", include("apps.team_messages.urls")),
+    path("schedule/", include("apps.team_schedule.urls")),
 ]

@@ -1,9 +1,12 @@
+# Authors: w2072520, w2112281
+
 import calendar
 from datetime import date, datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Q
 
 from apps.team_messages.models import TeamMessage
 from .forms import TeamMeetingForm
@@ -32,10 +35,18 @@ def team_schedule(request):
     cal = calendar.Calendar(firstweekday=0)
     month_days = cal.monthdatescalendar(year, month)
 
+    # Improving how we fetch meetings to avoid loading too much data making site slow
     meetings = TeamMeeting.objects.select_related("team_one", "team_two").filter(
+        Q(team_one=current_team) | Q(team_two=current_team),
         meeting_date__year=year,
         meeting_date__month=month,
     )
+
+    # Upcoming meetings list, only show 5 meetings
+    upcoming_meetings = TeamMeeting.objects.select_related("team_one", "team_two").filter(
+        Q(team_one=current_team) | Q(team_two=current_team),
+        meeting_date__gte=date.today()
+    ).order_by('meeting_date', 'meeting_time')[:5]
 
     team_meetings = [
         meeting for meeting in meetings
@@ -67,6 +78,8 @@ def team_schedule(request):
         "prev_year": prev_year,
         "next_month": next_month,
         "next_year": next_year,
+        "today": today,
+        "upcoming_meetings": upcoming_meetings,
     }
     return render(request, "team_schedule/calendar.html", context)
 

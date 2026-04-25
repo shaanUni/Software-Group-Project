@@ -1,9 +1,11 @@
+<!-- Authors: w2112281, w2072520 -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Sky Teams{% endblock %}</title>
+    <title>Sky Teams - {% block title %}{% endblock %}</title>
     {% load static %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
@@ -13,6 +15,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
           rel="stylesheet">
+
+    <script src="{% static 'pages/js/main.js' %}"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'favicon/favicon-96x96.png' %}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}" />
+    <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}" />
+    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}" />
 </head>
 
 <body class="site-body">
@@ -21,13 +32,13 @@
             {% include "header.html" %}
         {% endblock %}
 
-        <main class="site-main px-4 d-flex">
+        <main class="site-main d-flex align-items-start  justify-content-start">
             {% if user.is_authenticated %}
                 {% block sidebarMenu %}
                     {% include "sidebar-menu.html" %}
                 {% endblock %}
             {% endif %}
-            <div class="content-container">
+            <div class="content-container flex-grow-1">
                     {% block content %}{% endblock %}
             </div>
         </main>

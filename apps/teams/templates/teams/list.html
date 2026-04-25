@@ -14,6 +14,8 @@
         <div class="teams-actions">
             <a href="{% url 'team-create' %}" class="btn btn-primary">Add Team</a>
             <a href="{% url 'user-create' %}" class="btn btn-outline-primary">Add User</a>
+            <a href="{% url 'department-create' %}" class="btn btn-outline-primary">Add Department</a>
+            <a href="{% url 'project-create' %}" class="btn btn-outline-primary">Add Project</a>
         </div>
         {% endif %}
     </div>
@@ -23,6 +25,13 @@
         <div class="teams-table-card">
             <div class="card-header-row">
                 <h2 class="section-title">All Teams</h2>
+                <form method="get" class="search-form" style="display: flex; gap: 0.5rem;">
+                    <input type="text" name="q" placeholder="Search by team name, department, or leader..." value="{{ query }}" class="form-control" style="max-width: 300px;">
+                    <button type="submit" class="btn btn-outline-secondary">Search</button>
+                    {% if query %}
+                    <a href="{% url 'team-list' %}" class="btn btn-outline-secondary">Clear</a>
+                    {% endif %}
+                </form>
             </div>
 
             <div class="table-responsive">
@@ -55,7 +64,7 @@
                                     </a>
                             
                                     {% if user.team and user.team.team_id != team.team_id %}
-                                    <a href="{% url 'message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'messaging:message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
                                         Contact
                                     </a>
                                     {% endif %}
