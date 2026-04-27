@@ -8,10 +8,9 @@
 {% endblock %}
 
 {% block content %}
-<div>
-    <h1>Organisation</h1>
-
-    <div class="org-container">
+<div class="org-container">
+    
+    
         <!-- Left Sidebar -->
         <div class="org-sidebar">
             <div class="org-title">Teams: X</div>
@@ -66,25 +65,20 @@
                 </div>
             </div>
         </div>
-
-        <!-- Right Main Content -->
-        <div class="org-main">
-            <div class="org-filters">
+    <div class="org-content">
+        <div class="org-filters">
                 <button>All Departments</button>
                 <button>All Types</button>
                 <button>All Dependencies</button>
-            </div>
-
-            <div class="view-controls">
-                <button class="active">network</button>
-                <button>grid</button>
-            </div>
-
+                <button id="active">network</button>
+                <button id="view">grid</button>
+        </div>
+        <div class="org-main">
             <div class="network-placeholder">
                 [Network Graph View - Teams and their Dependencies]
-                <p style="margin-top: 20px; font-size: 12px;">Graph visualization showing team connections and dependencies will be rendered here</p>
+                <p style=" font-size: 12px;">Graph visualization showing team connections and dependencies will be rendered here</p>
             </div>
         </div>
+        </div>
     </div>
-</div>
 {% endblock %}
