@@ -9,6 +9,7 @@ from .views import (
     admin_user_detail,
     profile_view,
     edit_profile_view,
+    user_profile_view,
 )
 from .forms import (
     AdminLoginForm,
@@ -45,7 +46,7 @@ urlpatterns = [
     path("dashboard/admin/users/", admin_user_management, name="admin-user-management"),
     path("dashboard/admin/users/<int:user_id>/", admin_user_detail, name="admin-user-detail"),
 
-    path("profile/", profile_view, name="profile"),
+    path("profile/<int:user_id>/", user_profile_view, name="user-profile"),
     path("profile/edit/", edit_profile_view, name="edit_profile"),
 
     path(

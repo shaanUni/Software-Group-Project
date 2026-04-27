@@ -44,6 +44,10 @@ body {
     border-color: #2837A3 !important;
 }
 
+.password-change-page form p,
+.password-change-page form li {
+    color: #2837A3 !important;
+}
 /* UL GLOBAL STYLING */
 ul {
     list-style: none;
@@ -603,15 +607,12 @@ aside.sidebar .nav-links .nav-list .nav-list-item {
 }
 aside.sidebar .nav-links .nav-list .nav-list-item a {
     border-radius: 0 10px 10px 0;
-    display: grid;
-    grid-template-columns: 56px 1fr;
+    display: flex;
     align-items: center;
-    column-gap: 18px;
     color: #2837A3;
     text-decoration: none;
     transition: color 0.3s ease;
-    padding: 10px 16px;
-    width: 100%;
+    padding: 10px;
 }
 
 aside.sidebar .nav-links .nav-list .nav-list-item a span {

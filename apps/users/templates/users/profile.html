@@ -1,22 +1,30 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Profile</title>
-</head>
-<body>
-    <h1>My Profile</h1>
+<!-- Author: w2112281  -->
+{% extends "base.html" %}
+{% load static %}
 
-    <p><strong>Name:</strong> {{ request.user.first_name }} {{ request.user.last_name }}</p>
-    <p><strong>Username:</strong> {{ request.user.username }}</p>
-    <p><strong>Email:</strong> {{ request.user.email }}</p>
+{% block extra_css %}
+{% endblock %}
 
-    <p><a href="{% url 'edit_profile' %}">Edit profile</a></p>
-    <p><a href="{% url 'password_change' %}">Change password</a></p>
-    <p>
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
-    </p>
-</body>
-</html>
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+
+    <div class="profile-page">
+        <div class="card rounded-component-design border-0 p-3">
+            <div class="profile-header">
+                <h1 class="text-primary-color mb-3">My Profile</h1>
+            </div>
+            <p class="text-primary-color"><strong>First Name: </strong>{{ request.user.first_name }}</p>
+            <p class="text-primary-color"><strong>Last Name: </strong>{{ request.user.last_name }}</p>
+            <p class="text-primary-color"><strong>Username: </strong>{{ request.user.username }}</p>
+            <p class="text-primary-color"><strong>Email: </strong>{{ request.user.email }}</p>
+            <p class="text-primary-color"><a href="{% url 'password_change' %}">Change password</a></p>
+            <div>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-primary" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

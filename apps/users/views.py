@@ -14,6 +14,8 @@ from apps.team_schedule.models import TeamMeeting
 from apps.teams.models import Project, Team
 from apps.teams.models import AuditTrail
 
+User = get_user_model()
+
 
 def is_admin_user(user):
     return user.is_authenticated and user.is_staff
@@ -536,3 +538,15 @@ def edit_profile_view(request):
         form = UserUpdateForm(instance=request.user)
 
     return render(request, "registration/edit_profile.html", {"form": form})
+
+
+# Author: w2112281 adding user profile view
+@login_required
+def user_profile_view(request, user_id):
+    # Fetch the specific user being viewed
+    profile_user = get_object_or_404(User, pk=user_id)
+
+    return render(request, "users/profile.html", {
+        "profile_user": profile_user
+    })
+
