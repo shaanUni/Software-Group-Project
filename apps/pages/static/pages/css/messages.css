@@ -65,9 +65,9 @@
     width: 100%;
 }
 
-/*.messages-layout-inner {*/
-/*    padding: 35px;*/
-/*}*/
+.messages-layout-inner {
+    padding: 25px;
+}
 
 .messages-layout-inner .messages-container .message-card {
     background-color: #2837A3;

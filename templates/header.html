@@ -42,7 +42,7 @@
                             </div>
                             <div class="dropdown-menu rounded-component-design">
                                 <a href="{% url 'dashboard-router' %}" class="dropdown-menu-item">Dashboard</a>
-                                <a href="{% url 'profile' %}" class="dropdown-menu-item">Profile</a>
+                                <a href="{% url 'user-profile' user_id=request.user.id %}" class="dropdown-menu-item">Profile</a>
                                 <form action="{% url 'logout' %}" method="post" class="logout-form">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-primary">Logout</button>
