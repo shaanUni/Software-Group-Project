@@ -39,6 +39,14 @@
                 {% endblock %}
             {% endif %}
             <div class="content-container flex-grow-1">
+                <!-- Display messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
                     {% block content %}{% endblock %}
             </div>
         </main>
