@@ -120,7 +120,7 @@ def create_meeting(request):
             )
 
             messages.success(request, "Meeting scheduled successfully.")
-            return redirect("team-schedule")
+            return redirect("scheduling:team-schedule")
     else:
         form = TeamMeetingForm(current_team=current_team, initial=initial)
 
@@ -149,7 +149,7 @@ def meeting_detail(request, pk):
 
     if meeting.team_one != current_team and meeting.team_two != current_team:
         messages.error(request, "You do not have permission to view this meeting.")
-        return redirect("team-schedule")
+        return redirect("scheduling:team-schedule")
 
     return render(
         request,
