@@ -74,6 +74,10 @@ body.site-body {
 }
 
 /*  BUTTONS  */
+.btn {
+    border-radius: 8px !important;
+}
+
 .btn.btn-primary {
     background-color: #2837A3;
     transition: all 0.3s ease;
