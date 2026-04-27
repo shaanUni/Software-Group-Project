@@ -5,6 +5,8 @@ from .views import (
     dashboard_router,
     user_dashboard,
     admin_dashboard,
+    admin_user_management,
+    admin_user_detail,
     profile_view,
     edit_profile_view,
 )
@@ -40,6 +42,8 @@ urlpatterns = [
     path("dashboard/", dashboard_router, name="dashboard-router"),
     path("dashboard/user/", user_dashboard, name="user-dashboard"),
     path("dashboard/admin/", admin_dashboard, name="admin-dashboard"),
+    path("dashboard/admin/users/", admin_user_management, name="admin-user-management"),
+    path("dashboard/admin/users/<int:user_id>/", admin_user_detail, name="admin-user-detail"),
 
     path("profile/", profile_view, name="profile"),
     path("profile/edit/", edit_profile_view, name="edit_profile"),

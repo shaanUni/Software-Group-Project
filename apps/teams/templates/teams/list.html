@@ -19,7 +19,7 @@
         {% if user.is_superuser %}
         <div class="teams-actions">
             <a href="{% url 'team-create' %}" class="btn btn-primary">Add Team</a>
-            <a href="{% url 'user-create' %}" class="btn btn-outline-primary">Add User</a>
+            <a href="{% url 'admin-user-management' %}" class="btn btn-outline-primary">Add User</a>
             <a href="{% url 'department-create' %}" class="btn btn-outline-primary">Add Department</a>
             <a href="{% url 'project-create' %}" class="btn btn-outline-primary">Add Project</a>
         </div>
