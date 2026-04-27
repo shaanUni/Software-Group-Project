@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load svg %}
 
 {% block title %}Organisation{% endblock %}
 
@@ -67,9 +68,18 @@
         </div>
     <div class="org-content">
         <div class="org-filters">
-                <button>All Departments</button>
-                <button>All Types</button>
-                <button>All Dependencies</button>
+                <button>
+                    All Departments
+                    {% svg 'arrow-organisation' class="btn-icon" %}
+                </button>
+                <button>
+                    All Types
+                    {% svg 'arrow-organisation' class="btn-icon" %}
+                </button>
+                <button>
+                    All Dependencies
+                    {% svg 'arrow-organisation' class="btn-icon" %}
+                </button>
                 <button id="active">network</button>
                 <button id="view">grid</button>
         </div>
