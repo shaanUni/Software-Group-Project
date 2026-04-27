@@ -8,10 +8,12 @@ from django.utils import timezone
 import csv
 
 from .forms import RegisterForm, UserUpdateForm
+from .forms import AdminUserCreateForm
 from apps.team_messages.models import TeamMessage
 from apps.team_schedule.models import TeamMeeting
 from apps.teams.models import Project, Team
 from apps.teams.models import AuditTrail
+
 
 def is_admin_user(user):
     return user.is_authenticated and user.is_staff
@@ -294,9 +296,50 @@ def admin_user_management(request):
     User = get_user_model()
     has_additional_teams = _supports_additional_teams(User)
     teams = Team.objects.order_by("team_name", "team_id")
+    create_form = AdminUserCreateForm(
+        teams=teams,
+        supports_additional_teams=has_additional_teams,
+    )
 
     if request.method == "POST":
         action = request.POST.get("action")
+
+        if action == "create":
+            if not request.user.is_superuser:
+                messages.error(request, "Only superusers can create users.")
+                return redirect("admin-user-management")
+
+            create_form = AdminUserCreateForm(
+                request.POST,
+                teams=teams,
+                supports_additional_teams=has_additional_teams,
+            )
+
+            if create_form.is_valid():
+                new_user = create_form.save()
+                messages.success(request, f"Created user {new_user.username}.")
+                return redirect("admin-user-management")
+
+            users_qs, filters = _filtered_users_queryset(User, request.GET)
+            users = list(users_qs)
+            for account in users:
+                assigned = []
+                if has_additional_teams:
+                    assigned = list(account.additional_teams.all())
+                if account.team and all(team.pk != account.team.pk for team in assigned):
+                    assigned.insert(0, account.team)
+                account.assigned_teams = assigned
+
+            return render(
+                request,
+                "users/admin_user_management.html",
+                {
+                    "users": users,
+                    "teams": teams,
+                    "filters": filters,
+                    "create_form": create_form,
+                },
+            )
 
         if action in {"bulk_deactivate", "bulk_assign", "export_csv"}:
             selected_ids = request.POST.getlist("selected_users")
@@ -402,7 +445,7 @@ def admin_user_management(request):
             if has_additional_teams:
                 target_user.additional_teams.set(selected_teams)
 
-            if request.user.is_superuser:
+            if request.user.is_superuser and request.headers.get("x-requested-with") != "XMLHttpRequest":
                 if target_user.pk == request.user.pk:
                     target_user.is_staff = True
                     target_user.is_superuser = True
@@ -447,6 +490,7 @@ def admin_user_management(request):
             "users": users,
             "teams": teams,
             "filters": filters,
+            "create_form": create_form,
         },
     )
 

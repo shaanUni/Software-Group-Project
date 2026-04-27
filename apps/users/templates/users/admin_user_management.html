@@ -4,6 +4,34 @@
 
 {% block extra_css %}
 <style>
+    .uam-create-user-panel {
+        margin-top: 1rem;
+        border-top: 1px solid #dfe3ea;
+        padding-top: 1rem;
+    }
+    
+    .uam-create-teams ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.35rem 0.9rem;
+    }
+    
+    .uam-create-teams label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #334155;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 900px) {
+        .uam-create-teams ul {
+            grid-template-columns: 1fr;
+        }
+    }
     .uam-page { padding: 0.75rem 0; }
     .uam-title { font-size: 2.1rem; font-weight: 700; color: #1f2a3c; margin-bottom: 1.25rem; }
     .uam-panel { background: #fff; border: 1px solid #dfe3ea; border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1.15rem; }
@@ -58,7 +86,103 @@
         <h1 class="uam-title mb-0">User Access Management</h1>
         <a href="{% url 'admin-dashboard' %}" class="btn btn-outline-primary">Back to Admin Dashboard</a>
     </div>
-
+    <div class="uam-panel">
+        <button type="button" class="btn btn-sm btn-primary uam-save-btn" id="uam-open-create-user">
+            Add User
+        </button>
+    
+        <div id="uam-create-user-panel" class="uam-create-user-panel {% if not create_form.errors %}d-none{% endif %}">
+            <form method="post" class="row g-3 mt-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create">
+    
+                <div class="col-md-3">
+                    <label class="form-label">Username</label>
+                    {{ create_form.username }}
+                    {% for error in create_form.username.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-3">
+                    <label class="form-label">First Name</label>
+                    {{ create_form.first_name }}
+                    {% for error in create_form.first_name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-3">
+                    <label class="form-label">Last Name</label>
+                    {{ create_form.last_name }}
+                    {% for error in create_form.last_name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-3">
+                    <label class="form-label">Email</label>
+                    {{ create_form.email }}
+                    {% for error in create_form.email.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-3">
+                    <label class="form-label">Password</label>
+                    {{ create_form.password1 }}
+                    {% for error in create_form.password1.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-3">
+                    <label class="form-label">Confirm Password</label>
+                    {{ create_form.password2 }}
+                    {% for error in create_form.password2.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-6">
+                    <label class="form-label">Teams</label>
+                    <div class="uam-create-teams">
+                        {{ create_form.team_ids }}
+                    </div>
+                    {% for error in create_form.team_ids.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+    
+                <div class="col-md-12 d-flex gap-4 flex-wrap">
+                    <label class="form-check">
+                        {{ create_form.is_active }}
+                        <span class="form-check-label">Active</span>
+                    </label>
+    
+                    <label class="form-check">
+                        {{ create_form.is_staff }}
+                        <span class="form-check-label">Staff</span>
+                    </label>
+    
+                    <label class="form-check">
+                        {{ create_form.is_superuser }}
+                        <span class="form-check-label">Superuser</span>
+                    </label>
+                </div>
+    
+                {% for error in create_form.non_field_errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+    
+                <div class="col-md-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                    <button type="button" class="btn btn-outline-secondary" id="uam-cancel-create-user">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <div class="uam-panel">
         <form method="get" class="uam-filter-row">
             <div class="uam-search">
@@ -295,5 +419,23 @@
             });
         });
     })();
+
+    var openCreateUserButton = document.getElementById("uam-open-create-user");
+    var cancelCreateUserButton = document.getElementById("uam-cancel-create-user");
+    var createUserPanel = document.getElementById("uam-create-user-panel");
+
+    if (openCreateUserButton && createUserPanel) {
+        openCreateUserButton.addEventListener("click", function () {
+            createUserPanel.classList.remove("d-none");
+            openCreateUserButton.classList.add("d-none");
+        });
+    }
+
+    if (cancelCreateUserButton && createUserPanel && openCreateUserButton) {
+        cancelCreateUserButton.addEventListener("click", function () {
+            createUserPanel.classList.add("d-none");
+            openCreateUserButton.classList.remove("d-none");
+        });
+    }
 </script>
 {% endblock %}

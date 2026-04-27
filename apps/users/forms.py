@@ -11,7 +11,116 @@ from django.contrib.auth.forms import (
 
 User = get_user_model()
 
+from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 
+from apps.teams.models import Team  # adjust this import if needed
+
+
+User = get_user_model()
+
+
+class AdminUserCreateForm(forms.ModelForm):
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter password",
+        }),
+    )
+
+    password2 = forms.CharField(
+        label="Confirm password",
+        widget=forms.PasswordInput(attrs={
+            "class": "form-control",
+            "placeholder": "Confirm password",
+        }),
+    )
+
+    team_ids = forms.ModelMultipleChoiceField(
+        label="Teams",
+        queryset=Team.objects.none(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+        ]
+
+        widgets = {
+            "username": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter username",
+            }),
+            "first_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter first name",
+            }),
+            "last_name": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter last name",
+            }),
+            "email": forms.EmailInput(attrs={
+                "class": "form-control",
+                "placeholder": "Enter email address",
+            }),
+            "is_active": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+            "is_staff": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+            "is_superuser": forms.CheckboxInput(attrs={
+                "class": "form-check-input",
+            }),
+        }
+
+    def __init__(self, *args, teams=None, supports_additional_teams=False, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.supports_additional_teams = supports_additional_teams
+        self.fields["team_ids"].queryset = teams or Team.objects.order_by("team_name", "team_id")
+
+        if not self.is_bound:
+            self.fields["is_active"].initial = True
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("The two passwords do not match.")
+
+        if password2:
+            validate_password(password2, self.instance)
+
+        return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+
+        selected_teams = list(self.cleaned_data.get("team_ids") or [])
+
+        user.set_password(self.cleaned_data["password1"])
+        user.team = selected_teams[0] if selected_teams else None
+
+        if commit:
+            user.save()
+
+            if self.supports_additional_teams:
+                user.additional_teams.set(selected_teams)
+
+        return user
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=150, required=True)
