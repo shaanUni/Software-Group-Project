@@ -1,3 +1,4 @@
+{# Authors: w2143865 #}
 {% extends "registration/auth_base.html" %}
 
 {% block title %}Login{% endblock %}
@@ -50,6 +51,7 @@
         <div class="auth-divider"></div>
         <div class="auth-footer-link">
             <a href="{% url 'admin-login' %}" class="auth-inline-link">Admin Login</a>
+            <a href="{% url 'register' %}" class="auth-inline-link">Register</a>
         </div>
     </div>
 </section>

@@ -1,3 +1,4 @@
+{# Authors: w2143865 #}
 {% load static %}
 {% load bootstrap5 %}
 <!DOCTYPE html>
@@ -8,10 +9,12 @@
     <title>{% block title %}Sky Teams{% endblock %}</title>
     {% bootstrap_css %}
     <link rel="stylesheet" href="{% static 'pages/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/css/auth.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
           rel="stylesheet">
+    {% block extra_css %}{% endblock %}
 </head>
 <body class="auth-body">
     <div class="auth-shell">

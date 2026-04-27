@@ -1,4 +1,4 @@
-<!-- Authors: w2112281 -->
+<!-- Authors: w2112281, w2143865 -->
 
 <header class="site-header">
     <div class="top-bar">
@@ -41,7 +41,7 @@
                                 {% svg 'arrow_down' class="dropDown-icon" %}
                             </div>
                             <div class="dropdown-menu rounded-component-design">
-                                <a href="{% url 'user-dashboard' %}" class="dropdown-menu-item">Dashboard</a>
+                                <a href="{% url 'dashboard-router' %}" class="dropdown-menu-item">Dashboard</a>
                                 <a href="{% url 'profile' %}" class="dropdown-menu-item">Profile</a>
                                 <form action="{% url 'logout' %}" method="post" class="logout-form">
                                     {% csrf_token %}
