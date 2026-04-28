@@ -40,6 +40,19 @@
                         </span>
                     </a>
                 </li>
+                {% if user.is_staff or user.is_superuser %}
+                <li class="nav-list-item">
+                    <a href="{% url 'reports' %}" class="nav-list-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'page' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Reports
+                        </span>
+                    </a>
+                </li>
+                {% endif %}
                 <li class="nav-list-item">
                     <a href="{% url 'messaging:message-list' %}" class="nav-list-link {% if request.resolver_match.app_name == 'messaging' %}active{% endif %}">
                         <div class="nav-list-icon">

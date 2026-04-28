@@ -8,6 +8,7 @@ from .views import (
     team_detail,
     department_create_view,
     project_create_view,
+    reports_view,
 )
 
 urlpatterns = [
@@ -17,6 +18,7 @@ urlpatterns = [
     path("teams/<int:pk>/edit/", team_edit_view, name="team-edit"),
     path("users/create/", user_create_view, name="user-create"),
     path("organisation/", organisation_view, name="organisation"),
+    path("reports/", reports_view, name="reports"),
     path("departments/create/", department_create_view, name="department-create"),
     path("projects/create/", project_create_view, name="project-create"),
 ]

@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="reports-page">
+    <div class="reports-hero card shadow-sm border-0 mb-4">
+        <div class="card-body reports-hero-body">
+            <div>
+                <p class="reports-eyebrow mb-2">Admin dashboard</p>
+                <h1 class="reports-title mb-2">Reports</h1>
+                <p class="reports-subtitle mb-0">Review team coverage, leadership gaps, and department distribution.</p>
+            </div>
+
+            <div class="reports-actions d-flex flex-wrap gap-2">
+                <a href="?format=pdf" class="btn btn-primary">Download PDF</a>
+                <a href="?format=xlsx" class="btn btn-outline-primary">Download Excel</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="reports-stats-grid mb-4">
+        <div class="report-stat-card card shadow-sm border-0">
+            <div class="card-body">
+                <div class="report-stat-label">Total Teams</div>
+                <div class="report-stat-value">{{ summary.total_teams }}</div>
+                <div class="report-stat-note">All active teams in the system.</div>
+            </div>
+        </div>
+
+        <div class="report-stat-card card shadow-sm border-0">
+            <div class="card-body">
+                <div class="report-stat-label">Teams Without Managers</div>
+                <div class="report-stat-value">{{ summary.teams_without_managers }}</div>
+                <div class="report-stat-note">Teams where <span>team_leader</span> is null.</div>
+            </div>
+        </div>
+
+        <div class="report-stat-card card shadow-sm border-0">
+            <div class="card-body">
+                <div class="report-stat-label">Departments</div>
+                <div class="report-stat-value">{{ summary.total_departments }}</div>
+                <div class="report-stat-note">Departments represented by teams.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="report-panel card shadow-sm border-0">
+            <div class="card-header bg-white border-0 pb-0">
+                <h2 class="h5 mb-1">Teams by Department</h2>
+                <p class="text-muted mb-0">Count of teams in each department.</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle report-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th class="text-end">Team Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in department_rows %}
+                            <tr>
+                                <td class="fw-semibold">{{ row.name }}</td>
+                                <td class="text-end">{{ row.team_count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted py-4">No departments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-panel card shadow-sm border-0">
+            <div class="card-header bg-white border-0 pb-0">
+                <h2 class="h5 mb-1">All Teams</h2>
+                <p class="text-muted mb-0">Name, department, leader, and member count.</p>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle report-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Department</th>
+                                <th>Leader</th>
+                                <th class="text-end">Members</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in team_rows %}
+                            <tr>
+                                <td class="fw-semibold">{{ row.name }}</td>
+                                <td>{{ row.department }}</td>
+                                <td>{{ row.leader }}</td>
+                                <td class="text-end">{{ row.member_count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">No teams found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .reports-page {
+        padding: 24px;
+    }
+
+    .reports-hero-body {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        background: linear-gradient(135deg, #132238 0%, #1f4b99 100%);
+        color: #fff;
+        border-radius: 18px;
+    }
+
+    .reports-eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.75rem;
+        font-weight: 700;
+        opacity: 0.8;
+    }
+
+    .reports-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        line-height: 1.05;
+        margin: 0;
+    }
+
+    .reports-subtitle {
+        max-width: 56rem;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1rem;
+    }
+
+    .reports-actions .btn {
+        min-width: 160px;
+    }
+
+    .reports-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .report-stat-card {
+        border-radius: 18px;
+    }
+
+    .report-stat-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .report-stat-value {
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        font-weight: 800;
+        color: #132238;
+        line-height: 1.05;
+        margin-top: 0.5rem;
+    }
+
+    .report-stat-note {
+        color: #475569;
+        margin-top: 0.35rem;
+    }
+
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .report-panel {
+        border-radius: 18px;
+    }
+
+    .report-table thead th {
+        background: #f8fafc;
+        color: #132238;
+        font-weight: 700;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+    }
+
+    .report-table tbody td {
+        border-color: #e2e8f0;
+    }
+
+    @media (max-width: 992px) {
+        .reports-hero-body,
+        .reports-grid,
+        .reports-stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .reports-hero-body {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .reports-page {
+            padding: 16px;
+        }
+
+        .reports-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

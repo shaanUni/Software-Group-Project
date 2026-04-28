@@ -3,6 +3,8 @@ beautifulsoup4==4.14.3
 dj-svg==0.3.1
 Django==4.2.30
 django-bootstrap-v5==1.0.11
+openpyxl==3.1.5
+reportlab==4.4.0
 soupsieve==2.8.3
 sqlparse==0.5.5
 typing_extensions==4.15.0
