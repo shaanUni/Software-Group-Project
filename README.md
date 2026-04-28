@@ -105,3 +105,7 @@ Visit http://localhost:8000/
 I have made a folder called mockups. This will be seperate to the backend, so you can do front end work as you please here:
 http://localhost:8000/mockups/
 
+### Login details
+- username: admin
+- password: j@HCipqT8NTME8J
+- url: http://127.0.0.1:8000/login/
