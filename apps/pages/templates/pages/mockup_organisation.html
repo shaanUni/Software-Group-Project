@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% load svg %}
+
+{% block title %}Organisation{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'pages/css/mockup_organisation.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="org-container">
+    
+    
+        <!-- Left Sidebar -->
+        <div class="org-sidebar">
+            <div class="org-title">Teams: X</div>
+            <ul class="org-list">
+                <li>Core Team</li>
+                <li>Backend</li>
+                <li>Frontend</li>
+                <li>QA</li>
+                <li>Data</li>
+                <li>DevOps</li>
+                <li>Security</li>
+                <li>Mobile</li>
+                <li>API</li>
+            </ul>
+
+            <div class="org-title" style="margin-top: 30px;">Dependencies: Y</div>
+            <ul class="org-list">
+                <li>Database Infra</li>
+                <li>APIs</li>
+                <li>External Services</li>
+            </ul>
+
+            <div class="legend">
+                <div class="org-title">Legend</div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #f44336;"></span>
+                    <span>Core Team</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #ff9800;"></span>
+                    <span>Backend</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #fdd835;"></span>
+                    <span>Frontend</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #00e676;"></span>
+                    <span>QA</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #00bcd4;"></span>
+                    <span>Data</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #2196f3;"></span>
+                    <span>DevOps</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #1a237e;"></span>
+                    <span>API</span>
+                </div>
+            </div>
+        </div>
+    <div class="org-content">
+        <div class="org-filters">
+                <button>
+                    All Departments
+                    {% svg 'arrow-organisation' class="btn-icon" %}
+                </button>
+                <button>
+                    All Types
+                    {% svg 'arrow-organisation' class="btn-icon" %}
+                </button>
+                <button>
+                    All Dependencies
+                    {% svg 'arrow-organisation' class="btn-icon" %}
+                </button>
+                <button id="active">network</button>
+                <button id="view">grid</button>
+        </div>
+        <div class="org-main">
+            <div class="network-placeholder">
+                [Network Graph View - Teams and their Dependencies]
+                <p style=" font-size: 12px;">Graph visualization showing team connections and dependencies will be rendered here</p>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock %}

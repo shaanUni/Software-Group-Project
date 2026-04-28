@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Teams{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'pages/css/mockup_teams.css' %}">
+{% endblock %}
+
+{% block content %}
+<div>
+    <h1>Teams</h1>
+    
+    <div class="teams-header">
+        <input type="text" placeholder="Filter...">
+        <select>
+            <option>Sort...</option>
+            <option>By Name</option>
+            <option>By Lead</option>
+        </select>
+        <div style="margin-left: auto; display: flex; gap: 10px;">
+            <button class="view-btn view-btn-active" data-view="grid"  style="padding: 10px 15px; border: 2px solid #ccc; border-radius: 6px; cursor: pointer; background: white;">view 1</button>
+            <button class="view-btn" data-view="table" style="padding: 10px 15px; border: 2px solid #ccc; border-radius: 6px; cursor: pointer; background: white;">view 2</button>
+        </div>
+    </div>
+        <div style="margin-right: auto; display: flex; gap: 10px;">
+        <span style="border-radius: 100%; width: 5px; height: 5px; background-color: #ff0000; margin-top: 1%;"></span>
+        <div> - Inactive</div>
+        <span style="border-radius: 100%; width: 5px; height: 5px; background-color: #00ff00; margin-top: 1%;"></span>
+        <div> - Active</div>
+    </div>
+
+    <div class="teams-grid" id="gridView">
+        <!-- Team Card 1 -->
+        <div class="team-card">
+            <div class="team-header">
+                <span class="team-status active"></span>
+                <a class="team-name" href="#">Database Infrastructure</a>
+            </div>
+            <p class="team-lead">Gabriel Diya</p>
+            <div class="team-meta">
+                <div class="team-meta-item">👥 X members</div>
+                <div class="team-meta-item">📦 Y repositories</div>
+            </div>
+            <button class="contact-btn">Contact</button>
+        </div>
+
+        <!-- Team Card 2 -->
+        <div class="team-card">
+            <div class="team-header">
+                <span class="team-status active"></span>
+                <a class="team-name" href="#">Frontend Dev</a>
+            </div>
+            <p class="team-lead">George III</p>
+            <div class="team-meta">
+                <div class="team-meta-item">👥 X members</div>
+                <div class="team-meta-item">📦 Y repositories</div>
+            </div>
+            <button class="contact-btn">Contact</button>
+        </div>
+
+        <!-- Team Card 3 -->
+        <div class="team-card">
+            <div class="team-header">
+                <span class="team-status inactive"></span>
+                <a class="team-name" href="#">Backend Dev</a>
+            </div>
+            <p class="team-lead">Stoyan Boyets</p>
+            <div class="team-meta">
+                <div class="team-meta-item">👥 X members</div>
+                <div class="team-meta-item">📦 Y repositories</div>
+            </div>
+            <button class="contact-btn">Contact</button>
+        </div>
+    </div>
+
+    <!-- Table View -->
+    <div class="teams-table-view" id="tableView" style="display: none;">
+        <table class="teams-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Team Name</th>
+                    <th>Lead</th>
+                    <th>Members</th>
+                    <th>Repositories</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="team-status active"></span></td>
+                    <td><a href="#" class="table-team-name">Database Infrastructure</a></td>
+                    <td>Gabriel Diya</td>
+                    <td>X</td>
+                    <td>Y</td>
+                    <td><button class="contact-btn-table">Contact</button></td>
+                </tr>
+                <tr>
+                    <td><span class="team-status active"></span></td>
+                    <td><a href="#" class="table-team-name">Frontend Dev</a></td>
+                    <td>George III</td>
+                    <td>X</td>
+                    <td>Y</td>
+                    <td><button class="contact-btn-table">Contact</button></td>
+                </tr>
+                <tr>
+                    <td><span class="team-status inactive"></span></td>
+                    <td><a href="#" class="table-team-name">Backend Dev</a></td>
+                    <td>Stoyan Boyets</td>
+                    <td>X</td>
+                    <td>Y</td>
+                    <td><button class="contact-btn-table">Contact</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const view = this.getAttribute('data-view');
+                const gridView = document.getElementById('gridView');
+                const tableView = document.getElementById('tableView');
+                
+                document.querySelectorAll('.view-btn').forEach(b => {
+                    b.classList.remove('view-btn-active');
+                    b.style.borderColor = '#ccc';
+                });
+                
+                this.classList.add('view-btn-active');
+                this.style.borderColor = '#0052cc';
+                
+                if (view === 'grid') {
+                    gridView.style.display = 'grid';
+                    tableView.style.display = 'none';
+                } else {
+                    gridView.style.display = 'none';
+                    tableView.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</div>
+{% endblock %}
