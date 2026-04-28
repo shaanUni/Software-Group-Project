@@ -95,8 +95,8 @@
             </marker>
           </defs>
           <g id="svg-root">
-            <g id="edges-layer"></g>
             <g id="nodes-layer"></g>
+            <g id="edges-layer"></g>
           </g>
         </svg>
         <!-- Zoom controls -->
@@ -578,8 +578,8 @@ const NODE_W = 90;   // half-widths for hit-testing
 const NODE_H = 36;
 const REPULSION = 8000;
 const SPRING_K  = 0.04;
-const SPRING_LEN= 220;
-const GRAVITY   = 0.008;
+const SPRING_LEN= 300;
+const GRAVITY   = 0.002;
 const DAMPING   = 0.82;
 
 let simRunning = false;
@@ -816,11 +816,43 @@ function makeShape(team) {
 }
 
 function cubicEdge(s, t) {
-  // Start from bottom of source, end at top of target (with arrowhead offset)
-  const sx = s.x, sy = s.y + 34;
-  const tx = t.x, ty = t.y - 34;
-  const midY = (sy + ty) / 2;
-  return `M${sx},${sy} C${sx},${midY} ${tx},${midY} ${tx},${ty}`;
+  // Compute closest points on source and target shapes
+  const sPt = closestPointOnShape(s, t.x, t.y);
+  const tPt = closestPointOnShape(t, s.x, s.y);
+  const midY = (sPt.y + tPt.y) / 2;
+  return `M${sPt.x},${sPt.y} C${sPt.x},${midY} ${tPt.x},${midY} ${tPt.x},${tPt.y}`;
+}
+
+function closestPointOnShape(team, px, py) {
+  const dx = px - team.x;
+  const dy = py - team.y;
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+  const nx = dx / dist;
+  const ny = dy / dist;
+
+  if (team.shape === 'ellipse') {
+    return { x: team.x + nx * 52, y: team.y + ny * 34 };
+  }
+  if (team.shape === 'diamond') {
+    return { x: team.x + nx * 40, y: team.y + ny * 40 };
+  }
+  // rect
+  const corners = [
+    { x: team.x - 52, y: team.y - 30 },
+    { x: team.x + 52, y: team.y - 30 },
+    { x: team.x + 52, y: team.y + 30 },
+    { x: team.x - 52, y: team.y + 30 },
+  ];
+  let best = corners[0];
+  let bestDist = Infinity;
+  for (const c of corners) {
+    const d = (c.x - px) ** 2 + (c.y - py) ** 2;
+    if (d < bestDist) {
+      bestDist = d;
+      best = c;
+    }
+  }
+  return best;
 }
 
 /* ── 7. ZOOM & PAN ─────────────────────────────────────────────────── */

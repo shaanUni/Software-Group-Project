@@ -125,12 +125,14 @@ def user_create_view(request):
     return render(request, "teams/user_create.html", {"form": form})
 
 def organisation_view(request):
-    teams = Team.objects.select_related("downstream_dependency").all().order_by("team_name")
+    teams = Team.objects.select_related("downstream_dependency", "department").all().order_by("team_name")
 
     team_data = [
         {
             "id": team.team_id,
             "name": team.team_name or f"Team {team.team_id}",
+            "department": team.department.department_name if team.department else None,
+            "members": team.employee_count(),
             "downstream_dependency_id": (
                 team.downstream_dependency.team_id if team.downstream_dependency else None
             ),
