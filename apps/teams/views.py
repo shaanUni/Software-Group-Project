@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
+from django.db.models import Q
 
-from .forms import TeamCreateForm, UserCreateForm
+from .forms import TeamCreateForm, UserCreateForm, DepartmentCreateForm, ProjectCreateForm
 from .models import Team
-
+from .audit import log_audit_event
 
 def is_superadmin(user):
     return user.is_authenticated and user.is_superuser
@@ -13,7 +14,18 @@ def is_superadmin(user):
 @login_required
 def team_list(request):
     teams = Team.objects.select_related("team_leader", "department")
-    return render(request, "teams/list.html", {"teams": teams})
+    query = request.GET.get('q', '').strip()
+    
+    if query:
+        teams = teams.filter(
+            Q(team_name__icontains=query) |
+            Q(department__department_name__icontains=query) |
+            Q(team_leader__username__icontains=query) |
+            Q(team_leader__first_name__icontains=query) |
+            Q(team_leader__last_name__icontains=query)
+        )
+    
+    return render(request, "teams/list.html", {"teams": teams, "query": query})
 
 
 @login_required
@@ -22,7 +34,14 @@ def superadmin_team_create(request):
     if request.method == "POST":
         form = TeamCreateForm(request.POST)
         if form.is_valid():
-            form.save()
+            team = form.save()
+
+            log_audit_event(
+                user=request.user,
+                action="CREATE",
+                obj=team,
+                description=f"Created team '{team}'.",
+            )
             messages.success(request, "Team created successfully.")
             return redirect("team-list")
     else:
@@ -57,8 +76,15 @@ def team_edit_view(request, pk):
 
     if request.method == "POST":
         form = TeamCreateForm(request.POST, instance=team)
+        old_name = str(team)
         if form.is_valid():
-            form.save()
+            updated_team = form.save()
+            log_audit_event(
+                user=request.user,
+                action="UPDATE",
+                obj=updated_team,
+                description=f"Updated team '{old_name}' to '{updated_team}'.",
+            )
             messages.success(request, "Team updated successfully.")
             return redirect("team-list")
     else:
@@ -84,7 +110,13 @@ def user_create_view(request):
     if request.method == "POST":
         form = UserCreateForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_user = form.save()
+            log_audit_event(
+                user=request.user,
+                action="CREATE",
+                obj=new_user,
+                description=f"Created user '{new_user}'.",
+            )
             messages.success(request, "User created successfully.")
             return redirect("user-create")
     else:
@@ -112,5 +144,72 @@ def organisation_view(request):
         {
             "teams": teams,
             "team_data": team_data,
+        },
+    )
+
+@login_required
+@user_passes_test(is_superadmin)
+def department_create_view(request):
+    if request.method == "POST":
+        form = DepartmentCreateForm(request.POST)
+
+        if form.is_valid():
+            department = form.save()
+
+            log_audit_event(
+                user=request.user,
+                action="CREATE",
+                obj=department,
+                description=f"Created department '{department}'.",
+            )
+
+            messages.success(request, "Department created successfully.")
+            return redirect("team-list")
+    else:
+        form = DepartmentCreateForm()
+
+    return render(
+        request,
+        "teams/simple_form.html",
+        {
+            "form": form,
+            "page_title": "Create Department",
+            "page_subtitle": "Add a new department.",
+            "submit_text": "Create Department",
+            "cancel_url": "team-list",
+        },
+    )
+
+
+@login_required
+@user_passes_test(is_superadmin)
+def project_create_view(request):
+    if request.method == "POST":
+        form = ProjectCreateForm(request.POST)
+
+        if form.is_valid():
+            project = form.save()
+
+            log_audit_event(
+                user=request.user,
+                action="CREATE",
+                obj=project,
+                description=f"Created project '{project}'.",
+            )
+
+            messages.success(request, "Project created successfully.")
+            return redirect("team-list")
+    else:
+        form = ProjectCreateForm()
+
+    return render(
+        request,
+        "teams/simple_form.html",
+        {
+            "form": form,
+            "page_title": "Create Project",
+            "page_subtitle": "Add a new project and assign it to a team.",
+            "submit_text": "Create Project",
+            "cancel_url": "team-list",
         },
     )

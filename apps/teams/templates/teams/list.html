@@ -1,6 +1,12 @@
+{# Authors: w2143865 #}
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Teams{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pages/css/teams.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="teams-page">
@@ -13,18 +19,38 @@
         {% if user.is_superuser %}
         <div class="teams-actions">
             <a href="{% url 'team-create' %}" class="btn btn-primary">Add Team</a>
-            <a href="{% url 'user-create' %}" class="btn btn-outline-primary">Add User</a>
+            <a href="{% url 'admin-user-management' %}" class="btn btn-outline-primary">Add User</a>
+            <a href="{% url 'department-create' %}" class="btn btn-outline-primary">Add Department</a>
+            <a href="{% url 'project-create' %}" class="btn btn-outline-primary">Add Project</a>
         </div>
         {% endif %}
     </div>
 
     {% if teams %}
     <div class="teams-layout">
-        <div class="teams-table-card">
-            <div class="card-header-row">
+        <div class="teams-card-shell">
+            <div class="card-header-row teams-card-shell-header">
                 <h2 class="section-title">All Teams</h2>
+                <form method="get" class="teams-toolbar">
+                    <input type="text" name="q" placeholder="Filter by team name, department, or leader..." value="{{ query }}" class="form-control teams-toolbar-input">
+                    <button type="submit" class="btn btn-outline-secondary teams-toolbar-button">Search</button>
+                    {% if query %}
+                    <a href="{% url 'team-list' %}" class="btn btn-outline-secondary teams-toolbar-button">Clear</a>
+                    {% endif %}
+                    <div class="teams-view-toggle">
+                        <a href="{% url 'team-list' %}?{% if query %}q={{ query|urlencode }}&amp;{% endif %}view=cards"
+                           class="teams-view-pill {% if request.GET.view == 'list' %}{% else %}teams-view-pill--active{% endif %}">
+                            Cards
+                        </a>
+                        <a href="{% url 'team-list' %}?{% if query %}q={{ query|urlencode }}&amp;{% endif %}view=list"
+                           class="teams-view-pill {% if request.GET.view == 'list' %}teams-view-pill--active{% endif %}">
+                            List
+                        </a>
+                    </div>
+                </form>
             </div>
 
+            {% if request.GET.view == 'list' %}
             <div class="table-responsive">
                 <table class="teams-table">
                     <thead>
@@ -53,13 +79,13 @@
                                     <a href="{% url 'team-detail' team.team_id %}" class="btn btn-sm btn-primary">
                                         View Team
                                     </a>
-                            
+
                                     {% if user.team and user.team.team_id != team.team_id %}
-                                    <a href="{% url 'message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{% url 'messaging:message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">
                                         Contact
                                     </a>
                                     {% endif %}
-                            
+
                                     {% if user.is_superuser %}
                                     <a href="{% url 'team-edit' team.team_id %}" class="btn btn-sm btn-outline-secondary">
                                         Edit
@@ -81,6 +107,52 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="teams-card-grid">
+                {% for team in teams %}
+                <article class="team-card">
+                    <div class="team-card-body">
+                        <h3 class="team-card-title">{{ team.team_name }}</h3>
+                        <p class="team-card-lead">
+                            {% if team.team_leader %}
+                                {{ team.team_leader }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+
+                        <div class="team-card-meta">
+                            <p><span class="team-card-meta-label">Department:</span> {{ team.department.department_name|default:"-" }}</p>
+                            <p><span class="team-card-meta-label">Members:</span> {{ team.employee_count|default:"-" }}</p>
+                            <p><span class="team-card-meta-label">Repositories:</span> {{ team.project_count|default:"-" }}</p>
+                            <p>
+                                <span class="team-card-meta-label">Depends on:</span>
+                                {% if team.downstream_dependency %}
+                                    <a href="{% url 'team-detail' team.downstream_dependency.team_id %}" class="team-card-inline-link">
+                                        {{ team.downstream_dependency.team_name }}
+                                    </a>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="team-card-actions">
+                        <a href="{% url 'team-detail' team.team_id %}" class="btn btn-sm btn-primary">View Team</a>
+
+                        {% if user.team and user.team.team_id != team.team_id %}
+                        <a href="{% url 'messaging:message-create-for-team' team.team_id %}" class="btn btn-sm btn-outline-primary">Contact</a>
+                        {% endif %}
+
+                        {% if user.is_superuser %}
+                        <a href="{% url 'team-edit' team.team_id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </div>
     {% else %}

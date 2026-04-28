@@ -33,7 +33,8 @@ MANAGE_PY=$(find . -name "manage.py" | head -n 1)
 if [ -f "$MANAGE_PY" ]; then
     echo "🗄️ Running database migrations..."
     python3 "$MANAGE_PY" migrate
-    echo "setup complete! To start the server, run: python3 $MANAGE_PY runserver"
+    echo "Starting server..."
+    python3 "$MANAGE_PY" runserver
 else
     echo "manage.py not found. You might need to navigate to the app folder manually."
 fi

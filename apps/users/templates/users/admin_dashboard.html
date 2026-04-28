@@ -1,10 +1,94 @@
+{# Authors: w2143865 #}
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Admin Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pages/css/admin-dashboard.css' %}">
+{% endblock %}
+
 {% block content %}
-<h1>Admin Dashboard</h1>
-<p>You are logged in as an admin/staff user.</p>
-<p>This page is only for staff users.</p>
-<p><a href="/admin/">Open Django Admin</a></p>
+<section class="dashboard-page dashboard-page--admin">
+    <div class="dashboard-metrics">
+        {% for card in metric_cards %}
+            <article class="dashboard-metric-card">
+                <h2>{{ card.label }}</h2>
+                <p>{{ card.value }}</p>
+            </article>
+        {% endfor %}
+    </div>
+
+    <div class="dashboard-main-panels">
+        <section class="dashboard-panel dashboard-panel--table">
+            <div class="dashboard-panel-header">
+                <h2>Team management</h2>
+                {% if user.is_superuser %}
+                    <a href="{% url 'team-create' %}" class="dashboard-action-button">+ Add New Team</a>
+                {% else %}
+                    <a href="/admin/" class="dashboard-action-button">Open Admin</a>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-table-wrap">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Team Name</th>
+                            <th>Department</th>
+                            <th>Lead</th>
+                            <th>Members</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in team_rows %}
+                            <tr>
+                                <td>{{ row.name }}</td>
+                                <td>{{ row.department }}</td>
+                                <td>{{ row.lead }}</td>
+                                <td>{{ row.members }}</td>
+                                <td><span class="dashboard-status">{{ row.status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="dashboard-panel dashboard-panel--activity">
+            <div class="dashboard-panel-header dashboard-panel-header--simple">
+                <h2>Recent Activities</h2>
+            </div>
+
+            <div class="dashboard-activity-list">
+                {% if audit_entries %}
+                    {% for entry in audit_entries %}
+                        <article class="dashboard-activity-item">
+                            <div class="dashboard-activity-icon">+</div>
+                            <div>
+                                <h3>{{ entry.action }} {{ entry.model_name }}</h3>
+                                <p>{{ entry.description }}</p>
+                                <p>
+                                    {{ entry.created_at|date:"d M Y H:i" }}
+                                    {% if entry.admin_user %}
+                                        by {{ entry.admin_user }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    <article class="dashboard-activity-item">
+                        <div class="dashboard-activity-icon">-</div>
+                        <div>
+                            <h3>No recent audit activity</h3>
+                            <p>No admin changes have been logged yet.</p>
+                        </div>
+                    </article>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</section>
 {% endblock %}

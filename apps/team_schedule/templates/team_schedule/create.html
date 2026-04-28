@@ -1,53 +1,59 @@
+<!-- Authors: w2072520, w2112281  -->
+
 {% extends "base.html" %}
 
 {% block title %}Schedule Meeting{% endblock %}
 
-{% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="mb-1">Schedule Meeting</h1>
-                    <p class="text-muted mb-0">Create a meeting for {{ current_team.team_name }}</p>
-                </div>
-                <a href="{% url 'team-schedule' %}" class="btn btn-outline-secondary">Back to Schedule</a>
-            </div>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pages/css/schedule.css' %}">
+{% endblock %}
 
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
+{% block content %}
+<div class="py-4 pt-0">
+    <div class="row">
+        <div class="rounded-component-design p-3">
+            <div class="card border-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h1 class="mb-1 text-primary-color">Schedule meeting</h1>
+                        <p class="text-muted mb-0 text-primary-color">Create a meeting for {{ current_team.team_name }}</p>
+                    </div>
+                    <a href="{% url 'scheduling:team-schedule' %}" class="btn btn-outline-primary">Back to Schedule</a>
+                </div>
+                <div class="card-body p-0">
                     <form method="post">
                         {% csrf_token %}
 
                         <div class="mb-3">
-                            <label class="form-label">Other Team</label>
+                            <label for="id_team_two" class="form-label text-primary-color">Other Team</label>
                             {{ form.team_two }}
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Title</label>
+                            <label for="id_title" class="form-label text-primary-color">Title</label>
                             {{ form.title }}
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Date</label>
+                                <label for="id_meeting_date" class="form-label text-primary-color">Date</label>
                                 {{ form.meeting_date }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Time</label>
+                                <label for="id_meeting_time" class="form-label text-primary-color">Time</label>
                                 {{ form.meeting_time }}
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Notes</label>
+                            <label for="id_notes" class="form-label text-primary-color">Notes</label>
                             {{ form.notes }}
                         </div>
 
                         <div class="d-flex gap-2">
+                            <a href="{% url 'scheduling:team-schedule' %}" class="btn btn-outline-primary">Cancel</a>
                             <button type="submit" class="btn btn-primary">Create Meeting</button>
-                            <a href="{% url 'team-schedule' %}" class="btn btn-outline-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

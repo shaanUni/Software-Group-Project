@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-g!vz%&h=#rg9q9gbb1f%c8su=y_8=1o-7y$1!*96#ww8m+21=%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '*'] #just to allow access from other devices in the local network, should be changed in production PLSS as it might be bad if not :))))
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -130,6 +130,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 STATIC_URL = 'static/'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

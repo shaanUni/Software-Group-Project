@@ -1,3 +1,5 @@
+# Authors: w2072520, w2112281
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -84,7 +86,7 @@ def message_create(request, team_id=None):
             message.sent_by = request.user
             message.save()
             messages.success(request, "Message sent successfully.")
-            return redirect("message-list")
+            return redirect("messaging:message-list")
     else:
         form = TeamMessageForm(sender_team=sender_team, initial=initial)
 
@@ -113,7 +115,7 @@ def message_detail(request, pk):
 
     if message.sender_team != current_team and message.recipient_team != current_team:
         messages.error(request, "You do not have permission to view this message.")
-        return redirect("message-list")
+        return redirect("messaging:message-list")
 
     return render(
         request,

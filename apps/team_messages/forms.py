@@ -25,6 +25,10 @@ class TeamMessageForm(forms.ModelForm):
         sender_team = kwargs.pop("sender_team", None)
         super().__init__(*args, **kwargs)
 
+        # Set first option to "Select a team..." to help user
+        # understand the purpose of the dropdown
+        self.fields["recipient_team"].empty_label = "Select a team..."
+
         if sender_team:
             self.fields["recipient_team"].queryset = Team.objects.exclude(
                 pk=sender_team.pk
