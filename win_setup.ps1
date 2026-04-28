@@ -30,9 +30,9 @@ if ($REQ_FILE) {
 $MANAGE_PY = Get-ChildItem -Recurse -Filter "manage.py" | Select-Object -First 1
 
 if ($MANAGE_PY) {
-    Write-Host "🗄️ Running database migrations..."
+    Write-Host " Running database migrations..."
     python $MANAGE_PY.FullName migrate
-    Write-Host "`n Setup Complete!" -ForegroundColor Green
+    Write-Host " Setup Complete!" -ForegroundColor Green
     Write-Host "Starting server..."
     python $($MANAGE_PY.FullName) runserver
 } else {
