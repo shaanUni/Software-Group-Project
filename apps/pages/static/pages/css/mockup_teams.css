@@ -1,0 +1,188 @@
+/* Teams Page Styles */
+
+.teams-header {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.teams-header input,
+.teams-header select {
+    padding: 10px 15px;
+    border: 2px solid #0052cc;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 150px;
+}
+
+.teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.team-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.team-status {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.team-status.active {
+    background-color: #4caf50;
+}
+
+.team-status.inactive {
+    background-color: #f44336;
+}
+
+.team-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.team-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0052cc;
+    margin: 0;
+}
+
+.team-lead {
+    color: #0052cc;
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.team-meta {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.team-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.contact-btn {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: white;
+    color: #0052cc;
+    border: 2px solid #0052cc;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 0;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.contact-btn:hover {
+    background-color: #0052cc;
+    color: white;
+    border-top-left-radius: 0;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 10px;
+}
+
+/* Table View Styles */
+.teams-table-view {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.teams-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.teams-table thead {
+    background-color: #f5f5f5;
+    border-bottom: 2px solid #0052cc;
+}
+
+.teams-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: bold;
+    color: #0052cc;
+    font-size: 14px;
+}
+
+.teams-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+    color: #333;
+}
+
+.teams-table tbody tr:hover {
+    background-color: #f9f9f9;
+    transition: background-color 0.2s;
+}
+
+.teams-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-team-name {
+    color: #0052cc;
+    font-weight: 500;
+    text-decoration: none;
+    transition: text-decoration 0.2s;
+}
+
+.table-team-name:hover {
+    text-decoration: underline;
+}
+
+.contact-btn-table {
+    padding: 6px 14px;
+    background-color: white;
+    color: #0052cc;
+    border: 2px solid #0052cc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-size: 12px;
+}
+
+.contact-btn-table:hover {
+    background-color: #0052cc;
+    color: white;
+}
+
+.view-btn-active {
+    border-color: #0052cc !important;
+    color: #0052cc !important;
+}
