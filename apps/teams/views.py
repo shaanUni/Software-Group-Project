@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Q
 
 from .forms import TeamCreateForm, UserCreateForm, DepartmentCreateForm, ProjectCreateForm
-from .models import Team
+from .models import Department, Team
 from .audit import log_audit_event
 
 def is_superadmin(user):
@@ -30,7 +30,7 @@ def team_list(request):
 
 @login_required
 @user_passes_test(is_superadmin)
-def superadmin_team_create(request):
+def superadmin_team_create(request, department_id=None):
     if request.method == "POST":
         form = TeamCreateForm(request.POST)
         if form.is_valid():
@@ -45,9 +45,17 @@ def superadmin_team_create(request):
             messages.success(request, "Team created successfully.")
             return redirect("team-list")
     else:
-        form = TeamCreateForm()
+        initial = {}
+        if department_id:
+            from .models import Department
+            try:
+                department = Department.objects.get(pk=department_id)
+                initial = {"department": department}
+            except Department.DoesNotExist:
+                pass
+        form = TeamCreateForm(initial=initial)
 
-    return render(request, "teams/team_form.html", {"form": form})
+    return render(request, "teams/superadmin_team_create.html", {"form": form})
 
 
 @login_required
@@ -166,7 +174,7 @@ def department_create_view(request):
             )
 
             messages.success(request, "Department created successfully.")
-            return redirect("team-list")
+            return redirect("department-list")
     else:
         form = DepartmentCreateForm()
 
@@ -178,7 +186,82 @@ def department_create_view(request):
             "page_title": "Create Department",
             "page_subtitle": "Add a new department.",
             "submit_text": "Create Department",
-            "cancel_url": "team-list",
+"cancel_url": "department-list",
+        },
+    )
+
+
+@login_required
+def department_list(request):
+    from django.db.models import Count
+
+    try:
+        departments = Department.objects.select_related("department_head").annotate(
+            team_count=Count("teams")
+        )
+
+        query = request.GET.get('q', '').strip()
+        sort = request.GET.get('sort', 'name')
+
+        if query:
+            departments = departments.filter(
+                Q(department_name__icontains=query) |
+                Q(department_head__username__icontains=query) |
+                Q(department_head__first_name__icontains=query) |
+                Q(department_head__last_name__icontains=query)
+            )
+
+        if sort == 'teams':
+            departments = departments.order_by("-team_count", "department_name")
+        else:
+            departments = departments.order_by("department_name")
+
+        department_list = list(departments)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        department_list = []
+
+    return render(
+        request,
+        "teams/department_list.html",
+        {
+            "departments": department_list,
+            "query": query,
+            "sort": sort,
+        },
+    )
+
+
+@login_required
+@login_required
+def department_detail(request, department_id):
+    department = get_object_or_404(
+        Department.objects.select_related("department_head"),
+        pk=department_id,
+    )
+
+    teams = Team.objects.select_related("team_leader", "downstream_dependency").filter(
+        department=department
+    ).order_by("team_name")
+
+    teams_with_deps = []
+    for team in teams:
+        upstream_teams = team.upstream_teams.select_related("department").all()
+        downstream_team = team.downstream_dependency
+
+        teams_with_deps.append({
+            "team": team,
+            "upstream_teams": upstream_teams,
+            "downstream_team": downstream_team,
+        })
+
+    return render(
+        request,
+        "teams/department_detail.html",
+        {
+            "department": department,
+            "teams": teams_with_deps,
         },
     )
 
@@ -212,6 +295,6 @@ def project_create_view(request):
             "page_title": "Create Project",
             "page_subtitle": "Add a new project and assign it to a team.",
             "submit_text": "Create Project",
-            "cancel_url": "team-list",
+"cancel_url": "department-list",
         },
     )

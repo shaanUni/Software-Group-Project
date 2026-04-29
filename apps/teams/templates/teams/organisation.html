@@ -1063,14 +1063,19 @@ let pendingImport = null;
 document.getElementById('import-file').addEventListener('change', function () {
   const file = this.files[0];
   if (!file) return;
+  console.log('Import triggered, file:', file.name);
   const reader = new FileReader();
   reader.onload = ev => {
     try {
       const text = ev.target.result;
       let rows = [];
 
+      console.log('File content length:', text.length);
+      console.log('File content preview:', text.substring(0, 300));
+
       if (file.name.endsWith('.json')) {
         const parsed = JSON.parse(text);
+        console.log('Parsed JSON type:', typeof parsed, Array.isArray(parsed));
         if (!Array.isArray(parsed)) throw new Error('Expected a JSON array');
         rows = parsed.map(r => ({
           from_id: Number(r.from_id ?? r.fromId ?? r.source),
@@ -1079,28 +1084,94 @@ document.getElementById('import-file').addEventListener('change', function () {
                  : r.target != null  ? Number(r.target)
                  : null,
         }));
+        console.log('Mapped rows:', rows);
       } else {
         // CSV – skip header line
-        rows = text.trim().split('\n').slice(1)
+        const lines = text.trim().split('\n');
+        console.log('CSV lines:', lines.length);
+        rows = lines.slice(1)
           .filter(l => l.trim())
           .map(l => {
             // handle quoted fields
             const cols = l.split(',').map(c => c.replace(/^"|"$/g, '').trim());
-            return { from_id: Number(cols[0]), to_id: cols[2] !== '' ? Number(cols[2]) : null };
+            const from_id = Number(cols[0]);
+            const to_id = cols[2] !== '' ? Number(cols[2]) : null;
+            console.log('CSV row:', cols, '->', from_id, to_id);
+            return { from_id, to_id };
           });
       }
+
+      console.log('Parsed rows:', rows);
 
       // Build the desired many-to-many map from the rows
       // A row with to_id = null/0 means "this team has no dependency"
       const desired = {}; // id -> Set<toId>
+      const virtualTeams = {}; // id -> virtual team data
+
+      // Get actual canvas dimensions
+      const svg = document.getElementById('org-svg');
+      const canvasW = svg?.clientWidth || 800;
+      const canvasH = svg?.clientHeight || 600;
+
       rows.forEach(r => {
-        if (!teamMap[r.from_id]) return; // unknown team – skip
-        if (!desired[r.from_id]) desired[r.from_id] = new Set();
-        if (r.to_id && teamMap[r.to_id]) {
-          desired[r.from_id].add(r.to_id);
+        const fromId = r.from_id;
+        const toId = r.to_id;
+
+        if (!fromId) return;
+
+        // Create virtual team entries for unknown teams (source)
+        if (!teamMap[fromId]) {
+          const colorIdx = Object.keys(virtualTeams).length;
+          virtualTeams[fromId] = {
+            id: fromId,
+            name: `Team ${fromId}`,
+            color: PALETTE[colorIdx % PALETTE.length],
+            shape: SHAPES[colorIdx % SHAPES.length],
+            x: canvasW / 2 + (Math.random() - 0.5) * 150,
+            y: canvasH / 2 + (Math.random() - 0.5) * 150,
+            vx: 0, vy: 0,
+            department: 'External',
+            members: 0,
+          };
+          teamMap[fromId] = virtualTeams[fromId];
         }
-        // If to_id is missing/null the Set stays empty (clears existing deps)
+
+        // Create virtual team entries for unknown teams (target)
+        if (toId && !teamMap[toId]) {
+          const colorIdx = Object.keys(virtualTeams).length;
+          virtualTeams[toId] = {
+            id: toId,
+            name: `Team ${toId}`,
+            color: PALETTE[colorIdx % PALETTE.length],
+            shape: SHAPES[colorIdx % SHAPES.length],
+            x: canvasW / 2 + (Math.random() - 0.5) * 150,
+            y: canvasH / 2 + (Math.random() - 0.5) * 150,
+            vx: 0, vy: 0,
+            department: 'External',
+            members: 0,
+          };
+          teamMap[toId] = virtualTeams[toId];
+        }
+
+        // Add to desired mapping
+        if (!desired[fromId]) desired[fromId] = new Set();
+        if (toId && teamMap[toId]) {
+          desired[fromId].add(toId);
+        }
       });
+
+      // If we created any virtual teams, add them to the teams array and clientDeps
+      Object.values(virtualTeams).forEach(vt => {
+        if (!teams.find(t => t.id === vt.id)) {
+          teams.push(vt);
+          clientDeps[vt.id] = new Set();
+        }
+      });
+
+      if (rows.length === 0) {
+        alert('No valid rows found in the file. Format should be: [{"from_id": 1, "to_id": 2}, ...]');
+        return;
+      }
 
       // Diff: what edges are being ADDED vs REMOVED vs SAME
       const adds    = [];
@@ -1121,11 +1192,7 @@ document.getElementById('import-file').addEventListener('change', function () {
         });
       });
 
-      if (!adds.length && !removes.length && !same.length) {
-        alert('No recognised team IDs found in file. Make sure from_id values match your teams.');
-        return;
-      }
-
+      // Show preview
       pendingImport = { desired, adds, removes, same };
       showImportPreview();
     } catch (err) {
@@ -1163,6 +1230,10 @@ function showImportPreview() {
   list.appendChild(summary);
 
   document.getElementById('import-modal').style.display = 'flex';
+
+  // Trigger a re-render so virtual teams appear in network view
+  drawNetwork();
+  updateStats();
 }
 
 function closeImportModal() {
@@ -1209,8 +1280,9 @@ function init() {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      svgW = svg.clientWidth || 800;
-      svgH = svg.clientHeight || 600;
+      const svgEl = document.getElementById('org-svg');
+      svgW = svgEl.clientWidth || 800;
+      svgH = svgEl.clientHeight || 600;
       resetSimulation();
       startSim();
     }, 250);

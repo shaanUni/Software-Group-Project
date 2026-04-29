@@ -30,6 +30,17 @@
                     </a>
                 </li>
                 <li class="nav-list-item">
+                    <a href="{% url 'department-list' %}" class="nav-list-link {% if request.resolver_match.url_name == 'department-list' %}active{% endif %}">
+                        <div class="nav-list-icon">
+                            {% load svg %}
+                            {% svg 'department' class="nav-list-icon-svg" %}
+                        </div>
+                        <span>
+                            Departments
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
                     <a href="{% url 'organisation' %}" class="nav-list-link {% if request.resolver_match.url_name == 'organisation' %}active{% endif %}">
                         <div class="nav-list-icon">
                             {% load svg %}

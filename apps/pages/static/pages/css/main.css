@@ -642,6 +642,10 @@ aside.sidebar .nav-links .nav-list .nav-list-item:hover .nav-list-icon-svg path 
     fill: #fff;
 }
 
+aside.sidebar .nav-links .nav-list .nav-list-item:hover .nav-list-icon-svg path {
+    stroke: #fff;
+}
+
 aside.sidebar .nav-links .nav-list .nav-list-item a.active .nav-list-icon-svg path {
     fill: #fff;
 }
