@@ -1,356 +1,1225 @@
 {% extends "base.html" %}
-
 {% block title %}Organisation{% endblock %}
-
 {% block content %}
-<div class="organisation-page">
-    <div class="organisation-header">
-        <div>
-            <h1 class="organisation-title">Organisation</h1>
-            <p class="organisation-subtitle">Visual view of all teams and their dependencies.</p>
+
+{{ team_data|json_script:"team-data" }}
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="org-page">
+
+  <div class="org-header">
+    <div>
+      <h1 class="org-title">Organisation</h1>
+      <p class="org-subtitle">Visual view of all teams and their dependencies.</p>
+    </div>
+    <div class="header-actions">
+      <label class="btn btn-outline" title="Import dependencies from JSON or CSV">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import
+        <input type="file" id="import-file" accept=".json,.csv" style="display:none">
+      </label>
+      <div class="export-group">
+        <button class="btn btn-outline" id="export-json-btn" title="Export as JSON">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export JSON
+        </button>
+        <button class="btn btn-outline" id="export-csv-btn" title="Export as CSV">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {% if teams %}
+  <div class="org-body">
+
+    <aside class="org-sidebar">
+      <div class="sidebar-stat">
+        <span class="stat-value" id="stat-teams">0</span>
+        <span class="stat-label">Teams</span>
+      </div>
+      <div class="sidebar-stat">
+        <span class="stat-value" id="stat-deps">0</span>
+        <span class="stat-label">Dependencies</span>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-heading">Filter</p>
+        <select id="filter-dept" class="sidebar-select">
+          <option value="">All Departments</option>
+        </select>
+        <select id="filter-dep" class="sidebar-select" style="margin-top:8px">
+          <option value="">All Dependencies</option>
+          <option value="has">Has dependency</option>
+          <option value="none">No dependency</option>
+          <option value="root">Root teams</option>
+        </select>
+      </div>
+
+      <div class="sidebar-section">
+        <p class="sidebar-heading">Legend</p>
+        <div id="legend-list"></div>
+      </div>
+    </aside>
+
+    <main class="org-main">
+
+      <div class="org-toolbar">
+        <div class="view-toggle">
+          <button class="toggle-btn active" id="btn-network" onclick="setView('network')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="5" cy="19" r="3"/><circle cx="19" cy="19" r="3"/><line x1="12" y1="8" x2="5" y2="16"/><line x1="12" y1="8" x2="19" y2="16"/></svg>
+            network
+          </button>
+          <button class="toggle-btn" id="btn-grid" onclick="setView('grid')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            grid
+          </button>
         </div>
-    </div>
+      </div>
 
-    {% if teams %}
-    <div class="organisation-layout">
-        <div class="organisation-card">
-            <div class="card-header-row">
-                <h2 class="section-title">Team Dependency Map</h2>
-            </div>
-
-            {{ team_data|json_script:"team-data" }}
-
-            <div id="org-canvas">
-                <svg id="org-lines"></svg>
-            </div>
+      <div id="network-view">
+        <svg id="org-svg">
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+            </marker>
+            <marker id="arrow-highlight" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/>
+            </marker>
+          </defs>
+          <g id="svg-root">
+            <g id="nodes-layer"></g>
+            <g id="edges-layer"></g>
+          </g>
+        </svg>
+        <div class="zoom-controls">
+          <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
+          <button class="zoom-btn" id="zoom-reset" title="Reset view">⊙</button>
+          <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
         </div>
+        <div id="node-tooltip" class="node-tooltip"></div>
+      </div>
+
+      <div id="grid-view" style="display:none">
+        <div class="grid-search-row">
+          <input id="grid-search" type="text" placeholder="Search teams…" class="grid-search-input">
+        </div>
+        <div class="table-wrap">
+          <table class="dep-table">
+            <thead>
+              <tr>
+                <th data-sort="name">Team <span class="sort-icon">↕</span></th>
+                <th data-sort="department">Department <span class="sort-icon">↕</span></th>
+                <th data-sort="members">Members <span class="sort-icon">↕</span></th>
+                <th data-sort="downstream">Downstream Dependency <span class="sort-icon">↕</span></th>
+                <th data-sort="upstream">Upstream Teams <span class="sort-icon">↕</span></th>
+              </tr>
+            </thead>
+            <tbody id="grid-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="import-modal" class="modal-backdrop" style="display:none">
+    <div class="modal-box">
+      <h3 class="modal-title">Import Dependencies Preview</h3>
+      <p class="modal-subtitle">Review the changes before applying.</p>
+      <div id="import-preview-list" class="import-preview-list"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeImportModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="applyImport()">Apply Changes</button>
+      </div>
     </div>
-    {% else %}
-    <div class="empty-state">
-        <h2>No teams found</h2>
-        <p>There are no teams to display yet.</p>
-        {% if user.is_superuser %}
-        <a href="{% url 'team-create' %}" class="btn btn-primary">Create First Team</a>
-        {% endif %}
-    </div>
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <h2>No teams found</h2>
+    <p>There are no teams to display yet.</p>
+    {% if user.is_superuser %}
+    <a href="{% url 'team-create' %}" class="btn btn-primary">Create First Team</a>
     {% endif %}
+  </div>
+  {% endif %}
 </div>
 
 <style>
-    .organisation-page {
-        padding: 24px;
-    }
+*, *::before, *::after { box-sizing: border-box; }
 
-    .organisation-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-        gap: 16px;
-    }
+.org-page {
+  font-family: 'DM Sans', sans-serif;
+  padding: 24px;
+  min-height: 100%;
+  background: #f8fafc;
+}
 
-    .organisation-title {
-        margin: 0;
-    }
+/* Header */
+.org-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.org-title { margin: 0; font-size: 24px; font-weight: 700; color: #0f172a; }
+.org-subtitle { margin: 4px 0 0; color: #64748b; font-size: 14px; }
+.header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.export-group { display: flex; gap: 6px; }
 
-    .organisation-subtitle {
-        margin: 6px 0 0 0;
-        color: #6b7280;
-    }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; border: none; transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-outline {
+  background: #fff; border: 1.5px solid #e2e8f0; color: #374151;
+}
+.btn-outline:hover { background: #f1f5f9; border-color: #cbd5e1; }
+.btn-primary {
+  background: #1d4ed8; color: #fff;
+}
+.btn-primary:hover { background: #1e40af; }
 
-    .organisation-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
+/* Body layout */
+.org-body {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
 
-    .organisation-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-        border: 1px solid #e5e7eb;
-    }
+/* Sidebar */
+.org-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+  position: sticky;
+  top: 20px;
+}
+.sidebar-stat {
+  display: flex; flex-direction: column;
+  align-items: center; padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.sidebar-stat:last-of-type { border-bottom: none; }
+.stat-value { font-size: 28px; font-weight: 700; color: #1d4ed8; }
+.stat-label { font-size: 12px; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+.sidebar-section { margin-top: 16px; }
+.sidebar-heading { margin: 0 0 8px; font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; }
+.sidebar-select {
+  width: 100%; padding: 7px 10px; border: 1.5px solid #e2e8f0;
+  border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+  color: #374151; background: #f8fafc; cursor: pointer;
+}
+.sidebar-select:focus { outline: none; border-color: #3b82f6; }
+#legend-list { display: flex; flex-direction: column; gap: 7px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 
-    .card-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
+/* Main */
+.org-main { flex: 1; min-width: 0; }
 
-    .section-title {
-        margin: 0;
-    }
+/* Toolbar */
+.org-toolbar {
+  display: flex; justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.view-toggle {
+  display: flex; background: #fff; border: 1.5px solid #e2e8f0;
+  border-radius: 9px; padding: 3px; gap: 2px;
+}
+.toggle-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 7px; font-size: 13px;
+  font-weight: 600; border: none; cursor: pointer; color: #64748b;
+  background: transparent; font-family: 'DM Sans', sans-serif;
+  transition: all .15s;
+}
+.toggle-btn.active { background: #1d4ed8; color: #fff; }
+.toggle-btn:hover:not(.active) { background: #f1f5f9; }
 
-    #org-canvas {
-        position: relative;
-        width: 100%;
-        min-height: 700px;
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        overflow: hidden;
-    }
+/* Network SVG */
+#network-view {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+#org-svg {
+  display: block;
+  width: 100%;
+  height: 600px;
+  cursor: grab;
+}
+#org-svg:active { cursor: grabbing; }
 
-    #org-lines {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
-    }
+.node-shape { cursor: pointer; transition: filter .15s; }
+.node-shape:hover { filter: brightness(1.08); }
+.node-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  fill: #fff;
+  pointer-events: none;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.edge-path {
+  fill: none;
+  stroke: #cbd5e1;
+  stroke-width: 2;
+  marker-end: url(#arrow);
+  transition: stroke .2s;
+}
+.edge-path.highlighted {
+  stroke: #3b82f6;
+  stroke-width: 2.5;
+  marker-end: url(#arrow-highlight);
+}
+.node-ring {
+  fill: none;
+  stroke-width: 3;
+  rx: 999;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.node-ring.visible { opacity: 1; }
 
-    .team-node {
-        position: absolute;
-        width: 140px;
-        height: 140px;
-        border: 3px solid #2563eb;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 12px;
-        box-sizing: border-box;
-        background: #dbeafe;
-        color: #1e3a8a;
-        font-weight: 600;
-        word-break: break-word;
-        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
-        z-index: 2;
-    }
+/* Zoom controls */
+.zoom-controls {
+  position: absolute;
+  right: 16px; bottom: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.zoom-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: #fff; border: 1.5px solid #e2e8f0;
+  font-size: 17px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08); transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.zoom-btn:hover { background: #f1f5f9; }
 
-    .dependency-line {
-        stroke: #64748b;
-        stroke-width: 2;
-    }
+/* Tooltip */
+.node-tooltip {
+  position: absolute; pointer-events: none;
+  background: #0f172a; color: #fff;
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 13px; font-weight: 500;
+  display: none; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  z-index: 10;
+}
 
-    .empty-state {
-        background: #fff;
-        border-radius: 16px;
-        padding: 32px;
-        text-align: center;
-        border: 1px solid #e5e7eb;
-    }
+/* Grid view */
+#grid-view {
+  background: #fff; border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+.grid-search-row {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.grid-search-input {
+  width: 280px; padding: 8px 14px;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  color: #374151;
+}
+.grid-search-input:focus { outline: none; border-color: #3b82f6; }
+.table-wrap { overflow-x: auto; }
+.dep-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; color: #374151;
+}
+.dep-table thead { background: #f8fafc; }
+.dep-table th {
+  padding: 11px 16px; text-align: left;
+  font-weight: 700; color: #64748b;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+  border-bottom: 1.5px solid #e2e8f0; cursor: pointer;
+  white-space: nowrap; user-select: none;
+}
+.dep-table th:hover { color: #1d4ed8; }
+.dep-table td {
+  padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.dep-table tbody tr:hover { background: #f8faff; }
+.dep-table tbody tr:last-child td { border-bottom: none; }
+.team-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-weight: 600;
+}
+.team-color-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.dep-chip {
+  display: inline-flex; align-items: center;
+  background: #eff6ff; color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px; padding: 2px 10px;
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+}
+.no-dep { color: #94a3b8; font-style: italic; }
 
-    @media (max-width: 768px) {
-        .organisation-page {
-            padding: 16px;
-        }
+/* Import modal */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45); backdrop-filter: blur(3px);
+  z-index: 1000; display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+  background: #fff; border-radius: 16px;
+  padding: 28px; width: 480px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.modal-title { margin: 0 0 4px; font-size: 18px; font-weight: 700; color: #0f172a; }
+.modal-subtitle { margin: 0 0 16px; color: #64748b; font-size: 14px; }
+.import-preview-list {
+  max-height: 260px; overflow-y: auto;
+  border: 1px solid #e2e8f0; border-radius: 10px;
+  margin-bottom: 20px;
+}
+.import-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+.import-row:last-child { border-bottom: none; }
+.import-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+}
+.import-badge.add { background: #dcfce7; color: #166534; }
+.import-badge.remove { background: #fee2e2; color: #991b1b; }
+.import-badge.same { background: #f1f5f9; color: #64748b; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
-        #org-canvas {
-            min-height: 500px;
-        }
+/* Empty state */
+.empty-state {
+  background: #fff; border-radius: 16px; padding: 40px;
+  text-align: center; border: 1.5px solid #e2e8f0;
+}
 
-        .team-node {
-            width: 110px;
-            height: 110px;
-            font-size: 14px;
-        }
-    }
+@media (max-width: 768px) {
+  .org-body { flex-direction: column; }
+  .org-sidebar { width: 100%; position: static; }
+  #org-svg { height: 450px; }
+}
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const teamDataElement = document.getElementById("team-data");
-        const canvas = document.getElementById("org-canvas");
-        const svg = document.getElementById("org-lines");
+(function () {
 
-        if (!teamDataElement || !canvas || !svg) return;
 
-        const teams = JSON.parse(teamDataElement.textContent);
+const rawTeams = JSON.parse(document.getElementById('team-data').textContent || '[]');
 
-        function drawTeams() {
-            canvas.querySelectorAll(".team-node").forEach(node => node.remove());
-            svg.innerHTML = "";
+const PALETTE = [
+  { bg: '#ef4444', glow: '#fca5a5' },
+  { bg: '#f97316', glow: '#fdba74' },
+  { bg: '#eab308', glow: '#fde68a' },
+  { bg: '#22c55e', glow: '#86efac' },
+  { bg: '#06b6d4', glow: '#67e8f9' },
+  { bg: '#3b82f6', glow: '#93c5fd' },
+  { bg: '#8b5cf6', glow: '#c4b5fd' },
+  { bg: '#ec4899', glow: '#f9a8d4' },
+  { bg: '#1e293b', glow: '#94a3b8' },
+  { bg: '#10b981', glow: '#6ee7b7' },
+];
 
-            const nodeSize = window.innerWidth <= 768 ? 110 : 140;
-            const levelGap = window.innerWidth <= 768 ? 170 : 220;
-            const siblingGap = window.innerWidth <= 768 ? 140 : 180;
-            const topPadding = 60;
-            const leftPadding = 80;
+const SHAPES = ['ellipse','rect','diamond','ellipse','ellipse','rect','ellipse','rect','rect','diamond'];
 
-            const teamMap = {};
-            const upstreamMap = {};
-            const positions = {};
-            const visited = new Set();
+let teams = rawTeams.map((t, i) => ({
+  ...t,
+  color: PALETTE[i % PALETTE.length],
+  shape: SHAPES[i % SHAPES.length],
+  x: 0, y: 0, vx: 0, vy: 0,
+  id: t.id ?? t.team_id,
+  name: t.name ?? t.team_name,
+  downstream_dependency_id: t.downstream_dependency_id ?? null,
+  department: t.department ?? t.department_name ?? '—',
+  members: t.member_count ?? t.members ?? 0,
+}));
 
-            teams.forEach(team => {
-                teamMap[team.id] = team;
-                upstreamMap[team.id] = [];
-            });
+const teamMap = Object.fromEntries(teams.map(t => [t.id, t]));
 
-            teams.forEach(team => {
-                if (team.downstream_dependency_id && upstreamMap[team.downstream_dependency_id]) {
-                    upstreamMap[team.downstream_dependency_id].push(team.id);
-                }
-            });
+let clientDeps = {};
+teams.forEach(t => {
+  clientDeps[t.id] = new Set(
+    t.downstream_dependency_id && teamMap[t.downstream_dependency_id]
+      ? [t.downstream_dependency_id]
+      : []
+  );
+});
 
-            function subtreeWidth(teamId) {
-                const children = upstreamMap[teamId] || [];
-                if (!children.length) return 1;
+function edges() {
+  const result = [];
+  Object.entries(clientDeps).forEach(([fromId, toSet]) => {
+    toSet.forEach(toId => {
+      if (teamMap[fromId] && teamMap[toId]) {
+        result.push({ source: Number(fromId), target: Number(toId) });
+      }
+    });
+  });
+  return result;
+}
 
-                let width = 0;
-                children.forEach(childId => {
-                    width += subtreeWidth(childId);
-                });
+function depsOf(teamId) { return [...(clientDeps[teamId] || [])]; }
+function upstreamOf(teamId) {
+  return teams.filter(t => (clientDeps[t.id] || new Set()).has(teamId));
+}
 
-                return Math.max(width, 1);
-            }
 
-            const roots = teams
-                .filter(team => !team.downstream_dependency_id)
-                .map(team => team.id);
+function updateStats() {
+  document.getElementById('stat-teams').textContent = teams.length;
+  document.getElementById('stat-deps').textContent = edges().length;
+}
 
-            let currentRootX = leftPadding;
+function buildLegend() {
+  const list = document.getElementById('legend-list');
+  list.innerHTML = '';
+  teams.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${t.color.bg}"></span><span>${t.name}</span>`;
+    list.appendChild(item);
+  });
+}
 
-            function layoutTree(teamId, centerX, level) {
-                if (visited.has(teamId)) return;
-                visited.add(teamId);
+function buildDeptFilter() {
+  const sel = document.getElementById('filter-dept');
+  const depts = [...new Set(teams.map(t => t.department).filter(Boolean))].sort();
+  depts.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    sel.appendChild(opt);
+  });
+}
 
-                const y = topPadding + level * levelGap;
-                positions[teamId] = {
-                    x: centerX - nodeSize / 2,
-                    y: y,
-                    centerX: centerX,
-                    centerY: y + nodeSize / 2
-                };
 
-                const children = upstreamMap[teamId] || [];
-                if (!children.length) return;
+let filterDept = '';
+let filterDep  = '';
+let visibleIds = new Set(teams.map(t => t.id));
 
-                const childWidths = children.map(childId => subtreeWidth(childId));
-                const totalUnits = childWidths.reduce((a, b) => a + b, 0);
-                const totalWidth = (totalUnits - 1) * siblingGap;
+function applyFilters() {
+  visibleIds = new Set(
+    teams
+      .filter(t => {
+        if (filterDept && t.department !== filterDept) return false;
+        if (filterDep === 'has'  && depsOf(t.id).length === 0) return false;
+        if (filterDep === 'none' && depsOf(t.id).length > 0)  return false;
+        if (filterDep === 'root' && upstreamOf(t.id).length > 0) return false;
+        return true;
+      })
+      .map(t => t.id)
+  );
+  renderNetwork();
+  renderGrid();
+}
 
-                let startX = centerX - totalWidth / 2;
+document.getElementById('filter-dept').addEventListener('change', e => { filterDept = e.target.value; applyFilters(); });
+document.getElementById('filter-dep').addEventListener('change', e => { filterDep = e.target.value; applyFilters(); });
 
-                children.forEach((childId, index) => {
-                    const childUnits = childWidths[index];
-                    const childSpan = Math.max((childUnits - 1) * siblingGap, 0);
-                    const childCenterX = startX + childSpan / 2;
 
-                    layoutTree(childId, childCenterX, level + 1);
+function setView(view) {
+  document.getElementById('network-view').style.display = view === 'network' ? 'block' : 'none';
+  document.getElementById('grid-view').style.display    = view === 'grid'    ? 'block' : 'none';
+  document.getElementById('btn-network').classList.toggle('active', view === 'network');
+  document.getElementById('btn-grid').classList.toggle('active', view === 'grid');
+  if (view === 'network') { resetSimulation(); startSim(); }
+  if (view === 'grid') renderGrid();
+}
+window.setView = setView;
 
-                    startX += childSpan + siblingGap;
-                });
-            }
 
-            if (roots.length) {
-                roots.forEach(rootId => {
-                    const widthUnits = subtreeWidth(rootId);
-                    const treeWidth = Math.max((widthUnits - 1) * siblingGap, nodeSize);
-                    const rootCenterX = currentRootX + treeWidth / 2;
+const NODE_W = 90;   
+const NODE_H = 36;
+const REPULSION = 8000;
+const SPRING_K  = 0.04;
+const SPRING_LEN= 300;
+const GRAVITY   = 0.002;
+const DAMPING   = 0.82;
 
-                    layoutTree(rootId, rootCenterX, 0);
+let simRunning = false;
+let rafId;
+let svgW = 800, svgH = 600;
 
-                    currentRootX += treeWidth + 120;
-                });
-            }
+function resetSimulation() {
+  const svg = document.getElementById('org-svg');
+  svgW = svg.clientWidth || 800;
+  svgH = svg.clientHeight || 600;
 
-            const unplaced = teams.filter(team => !positions[team.id]);
+  const count = teams.length;
+  const cx = svgW / 2, cy = svgH / 2;
+  const r = Math.min(svgW, svgH) * 0.32;
+  teams.forEach((t, i) => {
+    const angle = (2 * Math.PI * i) / count;
+    t.x = cx + r * Math.cos(angle) + (Math.random() - .5) * 20;
+    t.y = cy + r * Math.sin(angle) + (Math.random() - .5) * 20;
+    t.vx = 0; t.vy = 0;
+  });
+}
 
-            let fallbackX = leftPadding;
-            let fallbackY = topPadding;
+function tick() {
+  const cx = svgW / 2, cy = svgH / 2;
+  const visible = teams.filter(t => visibleIds.has(t.id));
+  const edgeList = edges().filter(e => visibleIds.has(e.source) && visibleIds.has(e.target));
 
-            unplaced.forEach(team => {
-                positions[team.id] = {
-                    x: fallbackX,
-                    y: fallbackY,
-                    centerX: fallbackX + nodeSize / 2,
-                    centerY: fallbackY + nodeSize / 2
-                };
+  for (let i = 0; i < visible.length; i++) {
+    for (let j = i + 1; j < visible.length; j++) {
+      const a = visible[i], b = visible[j];
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const force = REPULSION / (dist * dist);
+      const fx = force * dx / dist, fy = force * dy / dist;
+      a.vx -= fx; a.vy -= fy;
+      b.vx += fx; b.vy += fy;
+    }
+  }
 
-                fallbackX += siblingGap;
-                if (fallbackX > canvas.clientWidth - 200) {
-                    fallbackX = leftPadding;
-                    fallbackY += levelGap;
-                }
-            });
+  edgeList.forEach(e => {
+    const s = teamMap[e.source], t = teamMap[e.target];
+    if (!s || !t) return;
+    const dx = t.x - s.x, dy = t.y - s.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    const force = SPRING_K * (dist - SPRING_LEN);
+    const fx = force * dx / dist, fy = force * dy / dist;
+    s.vx += fx; s.vy += fy;
+    t.vx -= fx; t.vy -= fy;
+  });
 
-            let maxX = 0;
-            let maxY = 0;
+  visible.forEach(t => {
+    t.vx += GRAVITY * (cx - t.x);
+    t.vy += GRAVITY * (cy - t.y);
+    t.vx *= DAMPING;
+    t.vy *= DAMPING;
+    t.x += t.vx;
+    t.y += t.vy;
+    const pad = 80;
+    t.x = Math.max(pad, Math.min(svgW - pad, t.x));
+    t.y = Math.max(pad, Math.min(svgH - pad, t.y));
+  });
 
-            teams.forEach(team => {
-                const pos = positions[team.id];
+  drawNetwork();
 
-                const node = document.createElement("div");
-                node.className = "team-node";
-                node.style.width = `${nodeSize}px`;
-                node.style.height = `${nodeSize}px`;
-                node.style.left = `${pos.x}px`;
-                node.style.top = `${pos.y}px`;
-                node.textContent = team.name;
+  const maxV = visible.reduce((m, t) => Math.max(m, Math.abs(t.vx), Math.abs(t.vy)), 0);
+  if (maxV > 0.3) {
+    rafId = requestAnimationFrame(tick);
+  } else {
+    simRunning = false;
+  }
+}
 
-                canvas.appendChild(node);
+function startSim() {
+  if (rafId) cancelAnimationFrame(rafId);
+  simRunning = true;
+  rafId = requestAnimationFrame(tick);
+}
 
-                maxX = Math.max(maxX, pos.x + nodeSize);
-                maxY = Math.max(maxY, pos.y + nodeSize);
-            });
+function kickSim() {
+  teams.forEach(t => { t.vx += (Math.random()-.5)*2; t.vy += (Math.random()-.5)*2; });
+  if (!simRunning) startSim();
+}
 
-            const canvasWidth = Math.max(canvas.clientWidth, maxX + 80);
-            const canvasHeight = Math.max(700, maxY + 80);
 
-            canvas.style.minHeight = `${canvasHeight}px`;
-            svg.setAttribute("viewBox", `0 0 ${canvasWidth} ${canvasHeight}`);
-            svg.setAttribute("width", canvasWidth);
-            svg.setAttribute("height", canvasHeight);
+let highlightedId = null;
 
-            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-            const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
-            marker.setAttribute("id", "arrowhead");
-            marker.setAttribute("markerWidth", "10");
-            marker.setAttribute("markerHeight", "7");
-            marker.setAttribute("refX", "9");
-            marker.setAttribute("refY", "3.5");
-            marker.setAttribute("orient", "auto");
-            marker.setAttribute("markerUnits", "strokeWidth");
+function drawNetwork() {
+  const edgesLayer = document.getElementById('edges-layer');
+  const nodesLayer = document.getElementById('nodes-layer');
+  const edgeList   = edges();
 
-            const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            arrowPath.setAttribute("d", "M0,0 L10,3.5 L0,7 Z");
-            arrowPath.setAttribute("fill", "#64748b");
+  const visEdges = edgeList.filter(e => visibleIds.has(e.source) && visibleIds.has(e.target));
+  const visTeams = teams.filter(t => visibleIds.has(t.id));
 
-            marker.appendChild(arrowPath);
-            defs.appendChild(marker);
-            svg.appendChild(defs);
+  const edgeSet = new Set(visEdges.map(e => `${e.source}-${e.target}`));
 
-            teams.forEach(team => {
-                const targetId = team.downstream_dependency_id;
-                if (!targetId) return;
-                if (!positions[team.id] || !positions[targetId]) return;
+  const existingPaths = Array.from(edgesLayer.querySelectorAll('path'));
+  while (existingPaths.length > visEdges.length) edgesLayer.removeChild(existingPaths.pop());
+  while (existingPaths.length < visEdges.length) {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.classList.add('edge-path');
+    edgesLayer.appendChild(p);
+    existingPaths.push(p);
+  }
 
-                const from = positions[team.id];
-                const to = positions[targetId];
+  visEdges.forEach((e, i) => {
+    const s = teamMap[e.source], t = teamMap[e.target];
+    if (!s || !t) return;
+    const key = `${e.source}-${e.target}`;
+    const isHl = highlightedId && (e.source === highlightedId || e.target === highlightedId);
+    const path = existingPaths[i];
+    path.setAttribute('d', cubicEdge(s, t));
+    path.classList.toggle('highlighted', isHl);
+  });
 
-                const startX = from.centerX;
-                const startY = from.y;
-                const endX = to.centerX;
-                const endY = to.y + nodeSize;
+  const existingGroups = Array.from(nodesLayer.querySelectorAll('g.node-g'));
+  while (existingGroups.length > visTeams.length) nodesLayer.removeChild(existingGroups.pop());
+  while (existingGroups.length < visTeams.length) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.classList.add('node-g');
+    nodesLayer.appendChild(g);
+    existingGroups.push(g);
+  }
 
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  visTeams.forEach((team, i) => {
+    const g = existingGroups[i];
+    if (g.dataset.teamId !== String(team.id)) {
+      g.innerHTML = '';
+      g.dataset.teamId = team.id;
 
-                const midY = (startY + endY) / 2;
-                const d = `
-                    M ${startX} ${startY}
-                    C ${startX} ${midY},
-                      ${endX} ${midY},
-                      ${endX} ${endY}
-                `;
+      const shape = makeShape(team);
+      shape.classList.add('node-shape');
+      shape.setAttribute('fill', team.color.bg);
+      shape.setAttribute('stroke', '#fff');
+      shape.setAttribute('stroke-width', '2');
+      g.appendChild(shape);
 
-                path.setAttribute("d", d);
-                path.setAttribute("fill", "none");
-                path.setAttribute("stroke", "#64748b");
-                path.setAttribute("stroke-width", "2.5");
-                path.setAttribute("marker-end", "url(#arrowhead)");
+      const words = team.name.split(' ');
+      const mid = Math.ceil(words.length / 2);
+      const line1 = words.slice(0, mid).join(' ');
+      const line2 = words.slice(mid).join(' ');
 
-                svg.appendChild(path);
-            });
+      if (line2) {
+        const t1 = makeTspan(line1, -8);
+        const t2 = makeTspan(line2, 8);
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.classList.add('node-label');
+        text.appendChild(t1);
+        text.appendChild(t2);
+        g.appendChild(text);
+      } else {
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.classList.add('node-label');
+        text.textContent = team.name;
+        g.appendChild(text);
+      }
+
+      g.addEventListener('mouseenter', e => onNodeHover(team, e));
+      g.addEventListener('mouseleave', onNodeLeave);
+      g.addEventListener('mousedown', e => startDrag(team, e));
+      g.addEventListener('click', () => {
+        highlightedId = highlightedId === team.id ? null : team.id;
+        drawNetwork();
+      });
+    }
+
+    g.setAttribute('transform', `translate(${team.x},${team.y})`);
+
+    const ring = g.querySelector('.highlight-ring');
+    if (highlightedId === team.id) {
+      if (!ring) {
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        r.classList.add('highlight-ring');
+        r.setAttribute('rx', '58'); r.setAttribute('ry', '42');
+        r.setAttribute('fill', 'none');
+        r.setAttribute('stroke', team.color.bg);
+        r.setAttribute('stroke-width', '3');
+        r.setAttribute('opacity', '.5');
+        g.insertBefore(r, g.firstChild);
+      }
+    } else {
+      if (ring) ring.remove();
+    }
+  });
+}
+
+function makeTspan(text, dy) {
+  const ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+  ts.setAttribute('x', '0');
+  ts.setAttribute('dy', dy);
+  ts.textContent = text;
+  return ts;
+}
+
+function makeShape(team) {
+  const ns = 'http://www.w3.org/2000/svg';
+  const s = team.shape;
+  if (s === 'ellipse') {
+    const el = document.createElementNS(ns, 'ellipse');
+    el.setAttribute('rx', '52'); el.setAttribute('ry', '34');
+    return el;
+  }
+  if (s === 'diamond') {
+    const el = document.createElementNS(ns, 'polygon');
+    el.setAttribute('points', '0,-40 55,0 0,40 -55,0');
+    return el;
+  }
+  const el = document.createElementNS(ns, 'rect');
+  el.setAttribute('x', '-52'); el.setAttribute('y', '-30');
+  el.setAttribute('width', '104'); el.setAttribute('height', '60');
+  el.setAttribute('rx', '10');
+  return el;
+}
+
+function cubicEdge(s, t) {
+  const sPt = closestPointOnShape(s, t.x, t.y);
+  const tPt = closestPointOnShape(t, s.x, s.y);
+  const midY = (sPt.y + tPt.y) / 2;
+  return `M${sPt.x},${sPt.y} C${sPt.x},${midY} ${tPt.x},${midY} ${tPt.x},${tPt.y}`;
+}
+
+function closestPointOnShape(team, px, py) {
+  const dx = px - team.x;
+  const dy = py - team.y;
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+  const nx = dx / dist;
+  const ny = dy / dist;
+
+  if (team.shape === 'ellipse') {
+    return { x: team.x + nx * 52, y: team.y + ny * 34 };
+  }
+  if (team.shape === 'diamond') {
+    return { x: team.x + nx * 40, y: team.y + ny * 40 };
+  }
+  // rect
+  const corners = [
+    { x: team.x - 52, y: team.y - 30 },
+    { x: team.x + 52, y: team.y - 30 },
+    { x: team.x + 52, y: team.y + 30 },
+    { x: team.x - 52, y: team.y + 30 },
+  ];
+  let best = corners[0];
+  let bestDist = Infinity;
+  for (const c of corners) {
+    const d = (c.x - px) ** 2 + (c.y - py) ** 2;
+    if (d < bestDist) {
+      bestDist = d;
+      best = c;
+    }
+  }
+  return best;
+}
+
+
+let scale = 1, panX = 0, panY = 0;
+
+function applyTransform() {
+  document.getElementById('svg-root').setAttribute(
+    'transform', `translate(${panX},${panY}) scale(${scale})`
+  );
+}
+
+document.getElementById('zoom-in').addEventListener('click', () => {
+  scale = Math.min(3, scale * 1.2); applyTransform();
+});
+document.getElementById('zoom-out').addEventListener('click', () => {
+  scale = Math.max(0.2, scale / 1.2); applyTransform();
+});
+document.getElementById('zoom-reset').addEventListener('click', () => {
+  scale = 1; panX = 0; panY = 0; applyTransform();
+});
+
+const svg = document.getElementById('org-svg');
+svg.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.9;
+  scale = Math.max(0.2, Math.min(3, scale * factor));
+  applyTransform();
+}, { passive: false });
+
+let isPanning = false, panStart = null;
+svg.addEventListener('mousedown', e => {
+  if (e.target.closest('.node-g')) return;
+  isPanning = true;
+  panStart = { x: e.clientX - panX, y: e.clientY - panY };
+});
+window.addEventListener('mousemove', e => {
+  if (!isPanning) return;
+  panX = e.clientX - panStart.x;
+  panY = e.clientY - panStart.y;
+  applyTransform();
+});
+window.addEventListener('mouseup', () => { isPanning = false; });
+
+
+let dragging = null;
+
+function startDrag(team, e) {
+  e.stopPropagation();
+  dragging = { team, startMx: e.clientX, startMy: e.clientY, startTx: team.x, startTy: team.y };
+}
+
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const dx = (e.clientX - dragging.startMx) / scale;
+  const dy = (e.clientY - dragging.startMy) / scale;
+  dragging.team.x = dragging.startTx + dx;
+  dragging.team.y = dragging.startTy + dy;
+  dragging.team.vx = 0; dragging.team.vy = 0;
+  drawNetwork();
+});
+
+window.addEventListener('mouseup', () => {
+  if (dragging) { dragging = null; kickSim(); }
+});
+
+
+const tooltip = document.getElementById('node-tooltip');
+
+function onNodeHover(team, e) {
+  const downstreamNames = depsOf(team.id).map(id => teamMap[id]?.name).filter(Boolean);
+  const upstreamNames   = upstreamOf(team.id).map(t => t.name);
+  let html = `<strong>${team.name}</strong>`;
+  if (team.department && team.department !== '—') html += `<br>📁 ${team.department}`;
+  if (downstreamNames.length) html += `<br>→ depends on: ${downstreamNames.join(', ')}`;
+  if (upstreamNames.length)   html += `<br>← used by: ${upstreamNames.join(', ')}`;
+  tooltip.innerHTML = html;
+  tooltip.style.display = 'block';
+  positionTooltip(e);
+}
+
+function onNodeLeave() {
+  tooltip.style.display = 'none';
+}
+
+document.getElementById('org-svg').addEventListener('mousemove', e => {
+  if (tooltip.style.display === 'block') positionTooltip(e);
+});
+
+function positionTooltip(e) {
+  const container = document.getElementById('network-view').getBoundingClientRect();
+  let x = e.clientX - container.left + 12;
+  let y = e.clientY - container.top + 12;
+  if (x + 220 > container.width) x -= 230;
+  if (y + 80 > container.height) y -= 90;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+
+
+let sortCol = 'name', sortAsc = true;
+
+function renderGrid() {
+  const search = (document.getElementById('grid-search').value || '').toLowerCase();
+  const tbody = document.getElementById('grid-tbody');
+
+  let rows = teams.filter(t => visibleIds.has(t.id));
+  if (search) rows = rows.filter(t =>
+    t.name.toLowerCase().includes(search) ||
+    (t.department || '').toLowerCase().includes(search)
+  );
+
+  rows.sort((a, b) => {
+    let av, bv;
+    if (sortCol === 'name')       { av = a.name; bv = b.name; }
+    if (sortCol === 'department') { av = a.department || ''; bv = b.department || ''; }
+    if (sortCol === 'members')    { av = a.members; bv = b.members; return sortAsc ? av - bv : bv - av; }
+    if (sortCol === 'downstream') {
+      av = depsOf(a.id).map(id => teamMap[id]?.name).join(',');
+      bv = depsOf(b.id).map(id => teamMap[id]?.name).join(',');
+    }
+    if (sortCol === 'upstream') {
+      av = upstreamOf(a.id).length;
+      bv = upstreamOf(b.id).length;
+      return sortAsc ? av - bv : bv - av;
+    }
+    return sortAsc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+  });
+
+  tbody.innerHTML = rows.map(team => {
+    const downTeams  = depsOf(team.id).map(id => teamMap[id]).filter(Boolean);
+    const upTeams    = upstreamOf(team.id);
+    return `<tr>
+      <td><span class="team-badge">
+        <span class="team-color-dot" style="background:${team.color.bg}"></span>
+        ${esc(team.name)}
+      </span></td>
+      <td>${esc(team.department || '—')}</td>
+      <td>${team.members || '—'}</td>
+      <td>${downTeams.length
+        ? downTeams.map(t => `<span class="dep-chip">→ ${esc(t.name)}</span>`).join(' ')
+        : '<span class="no-dep">None</span>'}</td>
+      <td>${upTeams.length
+        ? upTeams.map(t => `<span class="dep-chip" style="margin:2px">← ${esc(t.name)}</span>`).join(' ')
+        : '<span class="no-dep">None</span>'
+      }</td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('grid-search').addEventListener('input', renderGrid);
+
+// Sortable headers
+document.querySelectorAll('.dep-table th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.sort;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('.dep-table th .sort-icon').forEach(ic => ic.textContent = '↕');
+    th.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓';
+    renderGrid();
+  });
+});
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+
+function exportJSON() {
+  const data = edges().map(e => ({
+    from_id:   e.source,
+    from_name: teamMap[e.source]?.name,
+    to_id:     e.target,
+    to_name:   teamMap[e.target]?.name,
+  }));
+  download('dependencies.json', JSON.stringify(data, null, 2), 'application/json');
+}
+
+function exportCSV() {
+  const header = 'from_id,from_name,to_id,to_name\n';
+  const rows = edges().map(e =>
+    `${e.source},"${teamMap[e.source]?.name}",${e.target},"${teamMap[e.target]?.name}"`
+  ).join('\n');
+  download('dependencies.csv', header + rows, 'text/csv');
+}
+
+function download(filename, content, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = filename;
+  a.click();
+}
+
+document.getElementById('export-json-btn').addEventListener('click', exportJSON);
+document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
+
+
+let pendingImport = null;
+
+document.getElementById('import-file').addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+  console.log('Import triggered, file:', file.name);
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const text = ev.target.result;
+      let rows = [];
+
+      console.log('File content length:', text.length);
+      console.log('File content preview:', text.substring(0, 300));
+
+      if (file.name.endsWith('.json')) {
+        const parsed = JSON.parse(text);
+        console.log('Parsed JSON type:', typeof parsed, Array.isArray(parsed));
+        if (!Array.isArray(parsed)) throw new Error('Expected a JSON array');
+        rows = parsed.map(r => ({
+          from_id: Number(r.from_id ?? r.fromId ?? r.source),
+          to_id:   r.to_id != null   ? Number(r.to_id)
+                 : r.toId != null    ? Number(r.toId)
+                 : r.target != null  ? Number(r.target)
+                 : null,
+        }));
+        console.log('Mapped rows:', rows);
+      } else {
+        const lines = text.trim().split('\n');
+        console.log('CSV lines:', lines.length);
+        rows = lines.slice(1)
+          .filter(l => l.trim())
+          .map(l => {
+            const cols = l.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+            const from_id = Number(cols[0]);
+            const to_id = cols[2] !== '' ? Number(cols[2]) : null;
+            console.log('CSV row:', cols, '->', from_id, to_id);
+            return { from_id, to_id };
+          });
+      }
+
+
+      const desired = {}; 
+      const virtualTeams = {}; 
+
+      const svg = document.getElementById('org-svg');
+      const canvasW = svg?.clientWidth || 800;
+      const canvasH = svg?.clientHeight || 600;
+
+      rows.forEach(r => {
+        const fromId = r.from_id;
+        const toId = r.to_id;
+
+        if (!fromId) return;
+
+        if (!teamMap[fromId]) {
+          const colorIdx = Object.keys(virtualTeams).length;
+          virtualTeams[fromId] = {
+            id: fromId,
+            name: `Team ${fromId}`,
+            color: PALETTE[colorIdx % PALETTE.length],
+            shape: SHAPES[colorIdx % SHAPES.length],
+            x: canvasW / 2 + (Math.random() - 0.5) * 150,
+            y: canvasH / 2 + (Math.random() - 0.5) * 150,
+            vx: 0, vy: 0,
+            department: 'External',
+            members: 0,
+          };
+          teamMap[fromId] = virtualTeams[fromId];
         }
 
-        drawTeams();
-        window.addEventListener("resize", drawTeams);
-    });
+        if (toId && !teamMap[toId]) {
+          const colorIdx = Object.keys(virtualTeams).length;
+          virtualTeams[toId] = {
+            id: toId,
+            name: `Team ${toId}`,
+            color: PALETTE[colorIdx % PALETTE.length],
+            shape: SHAPES[colorIdx % SHAPES.length],
+            x: canvasW / 2 + (Math.random() - 0.5) * 150,
+            y: canvasH / 2 + (Math.random() - 0.5) * 150,
+            vx: 0, vy: 0,
+            department: 'External',
+            members: 0,
+          };
+          teamMap[toId] = virtualTeams[toId];
+        }
+
+        if (!desired[fromId]) desired[fromId] = new Set();
+        if (toId && teamMap[toId]) {
+          desired[fromId].add(toId);
+        }
+      });
+
+      Object.values(virtualTeams).forEach(vt => {
+        if (!teams.find(t => t.id === vt.id)) {
+          teams.push(vt);
+          clientDeps[vt.id] = new Set();
+        }
+      });
+
+      if (rows.length === 0) {
+        alert('No valid rows found in the file. Format should be: [{"from_id": 1, "to_id": 2}, ...]');
+        return;
+      }
+
+      const adds    = [];
+      const removes = [];
+      const same    = [];
+
+      Object.entries(desired).forEach(([fromIdStr, toSet]) => {
+        const fromId  = Number(fromIdStr);
+        const current = clientDeps[fromId] || new Set();
+
+        toSet.forEach(toId => {
+          if (current.has(toId)) same.push({ from: teamMap[fromId], to: teamMap[toId] });
+          else                   adds.push({ from: teamMap[fromId], to: teamMap[toId] });
+        });
+        current.forEach(toId => {
+          if (!toSet.has(toId)) removes.push({ from: teamMap[fromId], to: teamMap[toId] });
+        });
+      });
+
+      pendingImport = { desired, adds, removes, same };
+      showImportPreview();
+    } catch (err) {
+      alert('Could not parse file: ' + err.message);
+    }
+    this.value = ''; 
+  };
+  reader.readAsText(file);
+});
+
+function showImportPreview() {
+  const { adds, removes, same } = pendingImport;
+  const list = document.getElementById('import-preview-list');
+
+  const rows = [
+    ...adds.map(p    => ({ status: 'add',    from: p.from, to: p.to })),
+    ...removes.map(p => ({ status: 'remove', from: p.from, to: p.to })),
+    ...same.map(p    => ({ status: 'same',   from: p.from, to: p.to })),
+  ];
+
+  list.innerHTML = rows.map(p => `
+    <div class="import-row">
+      <span class="import-badge ${p.status}">${p.status}</span>
+      <span>
+        <strong>${esc(p.from?.name ?? '?')}</strong>
+        <span style="color:#94a3b8"> → </span>
+        <strong>${esc(p.to?.name ?? '?')}</strong>
+      </span>
+    </div>`).join('');
+
+  const summary = document.createElement('div');
+  summary.style.cssText = 'padding:10px 14px;font-size:12px;color:#64748b;border-top:1px solid #f1f5f9;';
+  summary.innerHTML = `<strong style="color:#166534">+${adds.length}</strong> added &nbsp; <strong style="color:#991b1b">−${removes.length}</strong> removed &nbsp; ${same.length} unchanged`;
+  list.appendChild(summary);
+
+  document.getElementById('import-modal').style.display = 'flex';
+
+  drawNetwork();
+  updateStats();
+}
+
+function closeImportModal() {
+  document.getElementById('import-modal').style.display = 'none';
+  pendingImport = null;
+}
+window.closeImportModal = closeImportModal;
+
+function applyImport() {
+  if (!pendingImport) return;
+  Object.entries(pendingImport.desired).forEach(([fromIdStr, toSet]) => {
+    clientDeps[Number(fromIdStr)] = new Set(toSet);
+  });
+  closeImportModal();
+  updateStats();
+  resetSimulation();
+  startSim();
+  renderGrid();
+}
+window.applyImport = applyImport;
+
+document.getElementById('import-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeImportModal();
+});
+
+
+function renderNetwork() {
+  drawNetwork();
+}
+
+function init() {
+  updateStats();
+  buildLegend();
+  buildDeptFilter();
+  resetSimulation();
+  startSim();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const svgEl = document.getElementById('org-svg');
+      svgW = svgEl.clientWidth || 800;
+      svgH = svgEl.clientHeight || 600;
+      resetSimulation();
+      startSim();
+    }, 250);
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+})();
 </script>
 {% endblock %}
